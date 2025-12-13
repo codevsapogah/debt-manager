@@ -2,8 +2,20 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+jest.mock('./contexts/AuthContext', () => ({
+  __esModule: true,
+  useAuth: () => ({
+    currentUser: null,
+    loading: false,
+    signInWithGoogle: jest.fn(),
+    logout: jest.fn(),
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+jest.mock('uuid', () => ({ v4: () => 'test-id' }));
+
+test('shows login prompt when user is not authenticated', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(screen.getByText(/sign in to sync your data/i)).toBeInTheDocument();
 });

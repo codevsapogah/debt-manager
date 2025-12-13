@@ -1,0 +1,127 @@
+{
+  "app": {
+    "title": "💰 Debt Manager",
+    "tagline": "Track your debts and plan your financial freedom"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "manageDebts": "Manage Debts",
+    "manageIncome": "Manage Income"
+  },
+  "auth": {
+    "welcome": "Welcome!",
+    "signInDescription": "Sign in to sync your data across all devices",
+    "continueWithGoogle": "Continue with Google",
+    "signingIn": "Signing in...",
+    "signOut": "Sign Out",
+    "benefits": {
+      "title": "Benefits of signing in:",
+      "sync": "✅ Sync across all your devices",
+      "backup": "✅ Secure cloud backup",
+      "access": "✅ Access anywhere, anytime",
+      "safety": "✅ Never lose your financial data"
+    },
+    "errors": {
+      "unauthorized": "This domain is not authorized. Please add localhost to Firebase authorized domains.",
+      "popupBlocked": "Popup was blocked. Please allow popups for this site and try again.",
+      "popupClosed": "Sign-in was cancelled. Please try again.",
+      "default": "Failed to sign in with Google. Please try again.",
+      "signInError": "Sign-in error: {{message}}"
+    }
+  },
+  "debt": {
+    "title": "Debt",
+    "debts": "Debts",
+    "addNewDebt": "+ Add New Debt",
+    "editDebt": "Edit Debt",
+    "addDebt": "Add New Debt",
+    "debtName": "Debt Name",
+    "totalAmount": "Total Amount",
+    "currentAmount": "Current Amount",
+    "interestRate": "Interest Rate (%)",
+    "monthlyPayment": "Monthly Payment",
+    "dateStarted": "Date Started",
+    "includeInTotal": "Include in Total",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "duplicate": "Duplicate",
+    "copy": "(Copy)",
+    "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?\\n\\nThis action cannot be undone.",
+    "noDebts": "No debts added yet. Add your first debt to get started!",
+    "addSomeDebts": "Add some debts to see projections"
+  },
+  "income": {
+    "title": "Income",
+    "addIncome": "Add Income Source",
+    "editIncome": "Edit Income Source",
+    "sourceName": "Source Name",
+    "amount": "Amount",
+    "frequency": "Frequency",
+    "frequencies": {
+      "weekly": "Weekly",
+      "biweekly": "Bi-weekly", 
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "noIncome": "No income sources added yet."
+  },
+  "overview": {
+    "debtOverview": "Debt Overview",
+    "currentDebt": "Current Debt:",
+    "totalPaidOff": "Total Paid Off:",
+    "monthlyPayments": "Monthly Payments:",
+    "overallProgress": "Overall Debt Progress",
+    "paidOff": "{{percent}}% paid off",
+    "started": "Started: {{amount}}",
+    "remaining": "Remaining: {{amount}}",
+    "financialSummary": "Financial Summary",
+    "monthlyIncome": "Monthly Income:",
+    "monthlyDebtPayments": "Monthly Debt Payments:",
+    "monthlyAvailable": "Monthly Available:",
+    "debtFreeDate": "Debt-Free Date:",
+    "unknown": "Unknown",
+    "paid": "PAID",
+    "paidOff": "PAID OFF",
+    "never": "NEVER"
+  },
+  "chart": {
+    "debtReductionTimeline": "Debt Reduction Timeline",
+    "completeTimeline": "Complete Timeline (from first loan)",
+    "snowballStrategy": "Snowball Payment Strategy",
+    "currentMonth": "Current Month",
+    "remainingDebt": "Remaining Debt",
+    "totalPaid": "Total Paid", 
+    "monthlyDebtPayment": "Monthly Debt Payment",
+    "moneyLeftAfterPayments": "Money Left After Payments",
+    "cumulativeAvailableIncome": "Cumulative Available Income",
+    "interestVsPrincipal": "Interest vs Principal Payments",
+    "interestPaid": "Interest Paid",
+    "loadingData": "Loading your financial data..."
+  },
+  "table": {
+    "name": "Name",
+    "current": "Current",
+    "total": "Total", 
+    "rate": "Rate",
+    "payment": "Payment",
+    "monthsLeft": "Months Left",
+    "payoffDate": "Payoff Date",
+    "progress": "Progress",
+    "inTotal": "In Total",
+    "actions": "Actions",
+    "includeTooltip": "Click to include in totals",
+    "excludeTooltip": "Click to exclude from totals"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "×",
+    "date": "Date: {{date}}",
+    "month": "Month {{month}}"
+  }
+}
