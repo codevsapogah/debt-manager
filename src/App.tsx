@@ -15,6 +15,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import { loadFromStorage } from './utils/storage';
 import { loadFromFirestore, migrateLocalStorageToFirestore } from './utils/firebaseStorage';
 import { Debt, IncomeSource, RecurringExpense } from './types';
+import { DrawWaveLoader } from 'react-loaders-kit';
 
 function AppContent() {
   const { currentUser, logout } = useAuth();
@@ -147,16 +148,19 @@ function AppContent() {
 
   // Show loading while data is being loaded
   if (loading) {
+    const loaderProps = {
+      loading: true,
+      size: 100,
+      duration: 1.5,
+      colors: ['#5e72e4', '#825ee4', '#5e72e4']
+    };
+
     return (
       <div className="app">
         <div className="loading-container">
-          <div className="loading-text">
+          <DrawWaveLoader {...loaderProps} />
+          <div className="loading-text" style={{ marginTop: '20px' }}>
             {t('chart.loadingData')}
-            <div className="loading-dots">
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
           </div>
         </div>
       </div>
