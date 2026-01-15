@@ -15,7 +15,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import { loadFromStorage } from './utils/storage';
 import { loadFromFirestore, migrateLocalStorageToFirestore } from './utils/firebaseStorage';
 import { Debt, IncomeSource, RecurringExpense } from './types';
-import { DrawWaveLoader } from 'react-loaders-kit';
+import DrawWaveLoader from './components/DrawWaveLoader';
 
 function AppContent() {
   const { currentUser, logout } = useAuth();
