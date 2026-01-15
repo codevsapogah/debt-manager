@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
-import DrawWaveLoader from './DrawWaveLoader';
+import GooeyCircleLoader from './GooeyCircleLoader';
 
 const Login: React.FC = () => {
   const { signInWithGoogle } = useAuth();
@@ -66,7 +66,7 @@ const Login: React.FC = () => {
           >
             {loading ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center' }}>
-                <DrawWaveLoader {...loaderProps} />
+                <GooeyCircleLoader {...loaderProps} />
                 <span>{t('auth.signingIn')}</span>
               </div>
             ) : (
