@@ -7,7 +7,7 @@ import {
   GoogleAuthProvider
 } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
-import DrawWaveLoader from '../components/DrawWaveLoader';
+import GooeyCircleLoader from '../components/GooeyCircleLoader';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         flexDirection: 'column',
         gap: '20px'
       }}>
-        <DrawWaveLoader {...loaderProps} />
+        <GooeyCircleLoader {...loaderProps} />
         <div style={{ color: '#5e72e4', fontSize: '18px' }}>Loading...</div>
       </div>
     );

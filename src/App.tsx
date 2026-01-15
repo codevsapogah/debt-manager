@@ -15,7 +15,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import { loadFromStorage } from './utils/storage';
 import { loadFromFirestore, migrateLocalStorageToFirestore } from './utils/firebaseStorage';
 import { Debt, IncomeSource, RecurringExpense } from './types';
-import DrawWaveLoader from './components/DrawWaveLoader';
+import GooeyCircleLoader from './components/GooeyCircleLoader';
 
 function AppContent() {
   const { currentUser, logout } = useAuth();
@@ -158,7 +158,7 @@ function AppContent() {
     return (
       <div className="app">
         <div className="loading-container">
-          <DrawWaveLoader {...loaderProps} />
+          <GooeyCircleLoader {...loaderProps} />
           <div className="loading-text" style={{ marginTop: '20px' }}>
             {t('chart.loadingData')}
           </div>
