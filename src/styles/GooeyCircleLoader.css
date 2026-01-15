@@ -9,64 +9,69 @@
   position: relative;
   width: 100%;
   height: 100%;
-  filter: url(#gooey-effect);
+  filter: url(#gooey-filter);
 }
 
-.gooey-circle {
+.gooey-circles .circle {
   position: absolute;
-  width: 30%;
-  height: 30%;
-  border-radius: 50%;
   top: 50%;
   left: 50%;
-  margin: -15% 0 0 -15%;
-}
-
-.gooey-circle.circle-1 {
+  width: 20%;
+  height: 20%;
+  margin-left: -10%;
+  margin-top: -10%;
+  border-radius: 50%;
   background-color: var(--color-1, #5e72e4);
-  animation: gooey-rotate var(--loader-duration, 1.5s) linear infinite;
-  transform-origin: 50% 50%;
+  animation: gooey-rotate var(--duration, 1.5s) infinite ease-in-out;
 }
 
-.gooey-circle.circle-2 {
+.gooey-circles .circle1 {
+  animation-delay: 0s;
+  background-color: var(--color-1, #5e72e4);
+}
+
+.gooey-circles .circle2 {
+  animation-delay: calc(var(--duration, 1.5s) * -0.833);
   background-color: var(--color-2, #825ee4);
-  animation: gooey-rotate var(--loader-duration, 1.5s) linear infinite;
-  animation-delay: calc(var(--loader-duration, 1.5s) * -0.33);
-  transform-origin: 50% 50%;
 }
 
-.gooey-circle.circle-3 {
+.gooey-circles .circle3 {
+  animation-delay: calc(var(--duration, 1.5s) * -0.666);
+  background-color: var(--color-1, #5e72e4);
+}
+
+.gooey-circles .circle4 {
+  animation-delay: calc(var(--duration, 1.5s) * -0.5);
+  background-color: var(--color-2, #825ee4);
+}
+
+.gooey-circles .circle5 {
+  animation-delay: calc(var(--duration, 1.5s) * -0.333);
   background-color: var(--color-3, #5e72e4);
-  animation: gooey-rotate var(--loader-duration, 1.5s) linear infinite;
-  animation-delay: calc(var(--loader-duration, 1.5s) * -0.66);
-  transform-origin: 50% 50%;
+}
+
+.gooey-circles .circle6 {
+  animation-delay: calc(var(--duration, 1.5s) * -0.166);
+  background-color: var(--color-1, #5e72e4);
 }
 
 @keyframes gooey-rotate {
-  0% {
+  0%, 100% {
     transform: translate(0, 0) scale(1);
   }
-  25% {
-    transform: translate(60%, 0) scale(0.8);
+  16.66% {
+    transform: translate(30%, -30%) scale(0.9);
+  }
+  33.33% {
+    transform: translate(40%, 0) scale(0.85);
   }
   50% {
-    transform: translate(60%, 60%) scale(1);
+    transform: translate(30%, 30%) scale(0.9);
   }
-  75% {
-    transform: translate(0, 60%) scale(0.8);
+  66.66% {
+    transform: translate(0, 40%) scale(0.85);
   }
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-}
-
-/* Fallback for browsers that don't support CSS filters */
-@supports not (filter: url(#gooey-effect)) {
-  .gooey-circles {
-    filter: none;
-  }
-
-  .gooey-circle {
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+  83.33% {
+    transform: translate(-30%, 30%) scale(0.9);
   }
 }
