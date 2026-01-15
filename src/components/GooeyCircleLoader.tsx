@@ -16,21 +16,20 @@ const GooeyCircleLoader: React.FC<GooeyCircleLoaderProps> = ({
 }) => {
   if (!loading) return null;
 
-  const containerStyle = {
+  const loaderStyle = {
     width: size,
     height: size,
-    '--loader-size': `${size}px`,
-    '--loader-duration': `${duration}s`,
+    '--duration': `${duration}s`,
     '--color-1': colors[0],
     '--color-2': colors[1] || colors[0],
     '--color-3': colors[2] || colors[0],
   } as React.CSSProperties;
 
   return (
-    <div className="gooey-circle-loader" style={containerStyle}>
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
+    <div className="gooey-circle-loader" style={loaderStyle}>
+      <svg width="0" height="0">
         <defs>
-          <filter id="gooey-effect">
+          <filter id="gooey-filter">
             <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
             <feColorMatrix
               in="blur"
@@ -43,9 +42,12 @@ const GooeyCircleLoader: React.FC<GooeyCircleLoaderProps> = ({
         </defs>
       </svg>
       <div className="gooey-circles">
-        <div className="gooey-circle circle-1"></div>
-        <div className="gooey-circle circle-2"></div>
-        <div className="gooey-circle circle-3"></div>
+        <div className="circle circle1"></div>
+        <div className="circle circle2"></div>
+        <div className="circle circle3"></div>
+        <div className="circle circle4"></div>
+        <div className="circle circle5"></div>
+        <div className="circle circle6"></div>
       </div>
     </div>
   );
