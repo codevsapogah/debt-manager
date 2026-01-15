@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslation } from 'react-i18next';
-import { DrawWaveLoader } from 'react-loaders-kit';
+import DrawWaveLoader from './DrawWaveLoader';
 
 const Login: React.FC = () => {
   const { signInWithGoogle } = useAuth();

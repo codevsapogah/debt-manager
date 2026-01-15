@@ -7,7 +7,7 @@ import {
   GoogleAuthProvider
 } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
-import { DrawWaveLoader } from 'react-loaders-kit';
+import DrawWaveLoader from '../components/DrawWaveLoader';
 
 interface AuthContextType {
   currentUser: User | null;
