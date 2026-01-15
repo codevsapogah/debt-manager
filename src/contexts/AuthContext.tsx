@@ -1,12 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { 
-  User, 
-  signInWithPopup, 
-  signOut, 
+import {
+  User,
+  signInWithPopup,
+  signOut,
   onAuthStateChanged,
   GoogleAuthProvider
 } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
+import { DrawWaveLoader } from 'react-loaders-kit';
 
 interface AuthContextType {
   currentUser: User | null;
@@ -63,9 +64,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout
   };
 
+  const loaderProps = {
+    loading: true,
+    size: 100,
+    duration: 1.5,
+    colors: ['#5e72e4', '#825ee4', '#5e72e4']
+  };
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <DrawWaveLoader {...loaderProps} />
+        <div style={{ color: '#5e72e4', fontSize: '18px' }}>Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
