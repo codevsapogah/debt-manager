@@ -89,6 +89,23 @@ export const deleteDebt = async (debtId: string): Promise<void> => {
   }
 };
 
+export const bulkDeleteDebts = (ids: string[]): void => {
+  const data = loadFromStorage();
+  data.debts = data.debts.filter(debt => !ids.includes(debt.id));
+  saveToStorage(data);
+};
+
+export const bulkUpdateDebts = (
+  ids: string[],
+  updates: Partial<Debt>
+): void => {
+  const data = loadFromStorage();
+  data.debts = data.debts.map(debt =>
+    ids.includes(debt.id) ? { ...debt, ...updates } : debt
+  );
+  saveToStorage(data);
+};
+
 export const addIncomeSource = async (income: IncomeSource): Promise<void> => {
   const currentState = loadFromStorage();
   currentState.incomeSources.push(income);

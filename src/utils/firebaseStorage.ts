@@ -2,16 +2,16 @@ import {
   collection,
   doc,
   setDoc,
-  getDoc,
   getDocs,
   deleteDoc,
   updateDoc,
   query,
-  orderBy
+  orderBy,
+  writeBatch
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { AppState, Debt, IncomeSource, RecurringExpense } from '../types';
-import { loadFromStorage, saveToStorage } from './storage';
+import { loadFromStorage } from './storage';
 
 // Get user's Firestore collections
 const getUserDebtsCollection = (userId: string) => 
@@ -151,6 +151,42 @@ export const deleteDebtFromFirestore = async (userId: string, debtId: string): P
     await deleteDoc(debtRef);
   } catch (error) {
     console.error('Error deleting debt from Firestore:', error);
+    throw error;
+  }
+};
+
+// Bulk operations for debts
+export const bulkDeleteDebtsFromFirestore = async (
+  userId: string,
+  ids: string[]
+): Promise<void> => {
+  try {
+    const batch = writeBatch(db);
+    ids.forEach(id => {
+      const debtRef = doc(db, 'users', userId, 'debts', id);
+      batch.delete(debtRef);
+    });
+    await batch.commit();
+  } catch (error) {
+    console.error('Error bulk deleting debts from Firestore:', error);
+    throw error;
+  }
+};
+
+export const bulkUpdateDebtsInFirestore = async (
+  userId: string,
+  ids: string[],
+  updates: Partial<Debt>
+): Promise<void> => {
+  try {
+    const batch = writeBatch(db);
+    ids.forEach(id => {
+      const debtRef = doc(db, 'users', userId, 'debts', id);
+      batch.update(debtRef, updates as any);
+    });
+    await batch.commit();
+  } catch (error) {
+    console.error('Error bulk updating debts in Firestore:', error);
     throw error;
   }
 };

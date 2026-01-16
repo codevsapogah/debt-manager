@@ -50,7 +50,22 @@
     "copy": "(Copy)",
     "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?\\n\\nThis action cannot be undone.",
     "noDebts": "No debts added yet. Add your first debt to get started!",
-    "addSomeDebts": "Add some debts to see projections"
+    "addSomeDebts": "Add some debts to see projections",
+    "selectAll": "Select All",
+    "hidePaidOff": "Hide Paid Off",
+    "selectedCount": "{{count}} selected",
+    "markAsPaid": "Mark as Paid",
+    "toggleInclude": "Toggle Include",
+    "export": "Export",
+    "paidOff": "Paid Off!",
+    "confirmDelete": "Confirm Deletion",
+    "confirmDeleteSingle": "Are you sure you want to delete this debt?",
+    "confirmDeleteMultiple": "Are you sure you want to delete {{count}} debts?",
+    "dontAskAgain": "Don't ask me again",
+    "exportData": "Export Data",
+    "selectExportFormat": "Select export format:",
+    "congratsSingle": "Congratulations! You've paid off your debt!",
+    "congratsMultiple": "Congratulations! You've paid off {{count}} debts!"
   },
   "income": {
     "title": "Income",
@@ -121,6 +136,7 @@
     "delete": "Delete",
     "edit": "Edit",
     "close": "×",
+    "clear": "Clear",
     "date": "Date: {{date}}",
     "month": "Month {{month}}"
   }
