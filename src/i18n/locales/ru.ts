@@ -66,7 +66,11 @@ export default {
     "exportData": "Экспорт Данных",
     "selectExportFormat": "Выберите формат экспорта:",
     "congratsSingle": "Поздравляем! Вы полностью выплатили свой кредит!",
-    "congratsMultiple": "Поздравляем! Вы полностью выплатили {{count}} кредитов!"
+    "congratsMultiple": "Поздравляем! Вы полностью выплатили {{count}} кредитов!",
+    "deleteSuccess": "Успешно удалено",
+    "updateSuccess": "Успешно обновлено",
+    "duplicateSuccess": "Успешно дублировано",
+    "showPaidOff": "Показать Выплаченные"
   },
   "income": {
     "title": "Доход",
@@ -212,6 +216,7 @@ export default {
     "edit": "Редактировать",
     "close": "×",
     "clear": "Очистить",
+    "total": "Всего",
     "date": "Дата: {{date}}",
     "month": "Месяц {{month}}"
   },

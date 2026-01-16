@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ConfigProvider, theme } from 'antd';
 import './App.css';
 import './i18n/config';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +7,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/Login';
 import DebtForm from './components/DebtForm';
 import DebtList from './components/DebtList';
+import DebtListAntD from './components/DebtListAntD';
 import DebtChart from './components/DebtChart';
 import IncomeForm from './components/IncomeForm';
 import IncomeList from './components/IncomeList';
@@ -255,7 +257,7 @@ function AppContent() {
           <div className="dashboard">
             <DebtChart debts={debts} incomes={incomes} expenses={expenses} />
             <div className="dashboard-overview">
-              <DebtList
+              <DebtListAntD
                 debts={debts}
                 onOptimisticDelete={handleOptimisticDebtDelete}
                 onOptimisticUpdate={handleOptimisticDebtUpdate}
@@ -301,7 +303,7 @@ function AppContent() {
             <div className="expenses-content">
               <div className="loans-section">
                 <h3>{t('debt.debts')}</h3>
-                <DebtList
+                <DebtListAntD
                   debts={debts}
                   onOptimisticDelete={handleOptimisticDebtDelete}
                   onOptimisticUpdate={handleOptimisticDebtUpdate}
@@ -372,9 +374,36 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ConfigProvider
+      theme={{
+        algorithm: theme.defaultAlgorithm,
+        token: {
+          colorPrimary: '#4f46e5',
+          colorSuccess: '#10b981',
+          colorWarning: '#f59e0b',
+          colorError: '#ef4444',
+          borderRadius: 12,
+          fontSize: 14,
+        },
+        components: {
+          Table: {
+            borderRadius: 16,
+            headerBg: '#f9fafb',
+          },
+          Button: {
+            borderRadius: 10,
+            controlHeight: 40,
+          },
+          Modal: {
+            borderRadius: 16,
+          },
+        },
+      }}
+    >
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ConfigProvider>
   );
 }
 
