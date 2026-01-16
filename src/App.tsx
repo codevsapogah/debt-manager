@@ -12,8 +12,8 @@ import IncomeList from './components/IncomeList';
 import ExpenseForm from './components/ExpenseForm';
 import ExpenseList from './components/ExpenseList';
 import LanguageSwitcher from './components/LanguageSwitcher';
-import { loadFromStorage } from './utils/storage';
-import { loadFromFirestore, migrateLocalStorageToFirestore } from './utils/firebaseStorage';
+import { loadFromStorage, bulkDeleteDebts, bulkUpdateDebts } from './utils/storage';
+import { loadFromFirestore, migrateLocalStorageToFirestore, bulkDeleteDebtsFromFirestore, bulkUpdateDebtsInFirestore } from './utils/firebaseStorage';
 import { Debt, IncomeSource, RecurringExpense } from './types';
 import GooeyCircleLoader from './components/GooeyCircleLoader';
 
@@ -92,6 +92,38 @@ function AppContent() {
 
   const handleDataUpdate = () => {
     loadData();
+  };
+
+  // Optimistic update handlers
+  const handleOptimisticDebtDelete = (ids: string[]) => {
+    setDebts(prev => prev.filter(debt => !ids.includes(debt.id)));
+  };
+
+  const handleOptimisticDebtUpdate = (ids: string[], updates: Partial<Debt>) => {
+    setDebts(prev => prev.map(debt =>
+      ids.includes(debt.id) ? { ...debt, ...updates } : debt
+    ));
+  };
+
+  // Async sync to storage/firebase in background
+  const syncDebtChanges = async (action: 'delete' | 'update', ids: string[], updates?: Partial<Debt>) => {
+    try {
+      if (action === 'delete') {
+        bulkDeleteDebts(ids);
+        if (currentUser) {
+          await bulkDeleteDebtsFromFirestore(currentUser.uid, ids);
+        }
+      } else if (action === 'update' && updates) {
+        bulkUpdateDebts(ids, updates);
+        if (currentUser) {
+          await bulkUpdateDebtsInFirestore(currentUser.uid, ids, updates);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to sync changes:', error);
+      // On error, reload from source of truth
+      loadData();
+    }
   };
 
   const handleDebtEdit = (debt: Debt) => {
@@ -223,7 +255,13 @@ function AppContent() {
           <div className="dashboard">
             <DebtChart debts={debts} incomes={incomes} expenses={expenses} />
             <div className="dashboard-overview">
-              <DebtList debts={debts} onDebtDeleted={handleDataUpdate} onDebtEdit={handleDebtEdit} />
+              <DebtList
+                debts={debts}
+                onOptimisticDelete={handleOptimisticDebtDelete}
+                onOptimisticUpdate={handleOptimisticDebtUpdate}
+                onSync={syncDebtChanges}
+                onDebtEdit={handleDebtEdit}
+              />
             </div>
           </div>
         )}
@@ -263,7 +301,13 @@ function AppContent() {
             <div className="expenses-content">
               <div className="loans-section">
                 <h3>{t('debt.debts')}</h3>
-                <DebtList debts={debts} onDebtDeleted={handleDataUpdate} onDebtEdit={handleDebtEdit} />
+                <DebtList
+                  debts={debts}
+                  onOptimisticDelete={handleOptimisticDebtDelete}
+                  onOptimisticUpdate={handleOptimisticDebtUpdate}
+                  onSync={syncDebtChanges}
+                  onDebtEdit={handleDebtEdit}
+                />
               </div>
 
               <div className="recurring-expenses-section">

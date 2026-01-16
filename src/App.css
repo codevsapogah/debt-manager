@@ -2311,3 +2311,347 @@ button[type="button"]:hover {
   --card-background: white;
   --text-primary: #2d3748;
 }
+
+/* Multi-select and bulk actions */
+.debt-list-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.debt-list-controls {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.select-all-checkbox,
+.hide-paid-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;
+  font-weight: 500;
+  color: #374151;
+}
+
+.select-all-checkbox input[type="checkbox"],
+.hide-paid-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.debt-checkbox,
+.col-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin-right: 12px;
+}
+
+.col-checkbox {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+/* Bulk actions toolbar */
+.bulk-actions-toolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e1e8ed;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.selected-count {
+  font-weight: 600;
+  color: #5e72e4;
+  margin-right: auto;
+}
+
+.bulk-action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #d1d9e0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.bulk-action-btn:hover {
+  background: #f1f3f5;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bulk-action-btn.delete {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.bulk-action-btn.delete:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.bulk-action-btn.export {
+  color: #28a745;
+  border-color: #28a745;
+}
+
+.bulk-action-btn.export:hover {
+  background: #28a745;
+  color: white;
+}
+
+.bulk-action-btn.clear {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+
+.bulk-action-btn.clear:hover {
+  background: #6c757d;
+  color: white;
+}
+
+/* Paid off badge */
+.paid-off-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  animation: celebrationPulse 2s ease-in-out;
+  margin-right: 8px;
+}
+
+.badge-icon {
+  font-size: 16px;
+}
+
+@keyframes celebrationPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.debt-table-row.paid-off {
+  border-left: 4px solid #28a745;
+  background: linear-gradient(to right, #d4edda 0%, #ffffff 10%);
+}
+
+/* Delete confirmation modal */
+.delete-confirm-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e1e8ed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #8898aa;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  color: #525f7f;
+  background: #f1f3f5;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-body p {
+  color: #525f7f;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.dont-ask-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 14px;
+  color: #525f7f;
+}
+
+.dont-ask-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e1e8ed;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-cancel,
+.btn-delete {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #f1f3f5;
+  color: #525f7f;
+}
+
+.btn-cancel:hover {
+  background: #e1e8ed;
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+}
+
+/* Export modal */
+.export-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 0;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+.export-format-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.export-format-btn {
+  flex: 1;
+  padding: 16px;
+  border: 2px solid #5e72e4;
+  background: white;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #5e72e4;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-format-btn:hover {
+  background: #5e72e4;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(94,114,228,0.3);
+}
+
+/* Celebration toast */
+.celebration-toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 10000;
+}
+
+.celebration-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.celebration-toast span {
+  font-size: 24px;
+}

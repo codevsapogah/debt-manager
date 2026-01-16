@@ -2,34 +2,119 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { Debt } from '../types';
-import { deleteDebt, updateDebt, addDebt } from '../utils/storage';
+import { addDebt } from '../utils/storage';
 import { calculateDebtProjection, calculateCurrentBalance } from '../utils/calculations';
 import { formatCurrency } from '../utils/currency';
 import { format } from 'date-fns';
+import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { BulkActionsToolbar } from './BulkActionsToolbar';
+import { PaidOffBadge } from './PaidOffBadge';
+import { ExportModal } from './ExportModal';
+import { exportToCSV, exportToJSON } from '../utils/export';
 
 interface DebtListProps {
   debts: Debt[];
-  onDebtDeleted: () => void;
+  onOptimisticDelete: (ids: string[]) => void;
+  onOptimisticUpdate: (ids: string[], updates: Partial<Debt>) => void;
+  onSync: (action: 'delete' | 'update', ids: string[], updates?: Partial<Debt>) => Promise<void>;
   onDebtEdit: (debt: Debt) => void;
 }
 
 type SortField = 'name' | 'currentAmount' | 'totalAmount' | 'interestRate' | 'monthlyPayment' | 'monthsLeft' | 'payoffDate' | 'progress';
 type SortDirection = 'asc' | 'desc';
 
-const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit }) => {
+const DebtList: React.FC<DebtListProps> = ({ debts, onOptimisticDelete, onOptimisticUpdate, onSync, onDebtEdit }) => {
   const { t } = useTranslation();
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [processingToggles, setProcessingToggles] = useState<Set<string>>(new Set());
 
+  // Multi-select state
+  const [selectedDebts, setSelectedDebts] = useState<Set<string>>(new Set());
+  const [hidePaidOff, setHidePaidOff] = useState(false);
+
+  // Modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<'single' | 'bulk'>('single');
+  const [singleDeleteId, setSingleDeleteId] = useState<string | null>(null);
+  const [dontAskAgain, setDontAskAgain] = useState(
+    localStorage.getItem('debt-delete-no-confirm') === 'true'
+  );
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  // Helper functions
+  const isPaidOff = (debt: Debt) => {
+    const { currentBalance } = calculateCurrentBalance(debt);
+    const actualCurrentBalance = debt.currentAmount !== debt.totalAmount
+      ? debt.currentAmount
+      : currentBalance;
+    return actualCurrentBalance <= 0;
+  };
+
+  const filteredDebts = hidePaidOff
+    ? debts.filter(debt => !isPaidOff(debt))
+    : debts;
+
+  // Selection handlers
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      const allIds = new Set(filteredDebts.map(d => d.id));
+      setSelectedDebts(allIds);
+    } else {
+      setSelectedDebts(new Set());
+    }
+  };
+
+  const handleSelectDebt = (id: string) => {
+    const newSelected = new Set(selectedDebts);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedDebts(newSelected);
+  };
+
+  // Delete handlers
   const handleDelete = async (id: string, debtName: string) => {
-    if (window.confirm(t('debt.deleteConfirm', { name: debtName }))) {
-      try {
-        await deleteDebt(id);
-      } catch (error) {
-        console.error('Failed to delete debt:', error);
-      }
-      onDebtDeleted();
+    if (dontAskAgain) {
+      // Delete immediately without modal
+      onOptimisticDelete([id]);
+      setSelectedDebts(new Set());
+      await onSync('delete', [id]);
+    } else {
+      // Show confirmation modal
+      setSingleDeleteId(id);
+      setDeleteTarget('single');
+      setShowDeleteModal(true);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (deleteTarget === 'single' && singleDeleteId) {
+      onOptimisticDelete([singleDeleteId]);
+      setSelectedDebts(new Set());
+      await onSync('delete', [singleDeleteId]);
+    } else if (deleteTarget === 'bulk') {
+      const ids = Array.from(selectedDebts);
+      onOptimisticDelete(ids);
+      setSelectedDebts(new Set());
+      await onSync('delete', ids);
+    }
+    setShowDeleteModal(false);
+    setSingleDeleteId(null);
+  };
+
+  const handleBulkDelete = () => {
+    if (dontAskAgain) {
+      const ids = Array.from(selectedDebts);
+      onOptimisticDelete(ids);
+      setSelectedDebts(new Set());
+      onSync('delete', ids);
+    } else {
+      setSingleDeleteId(null);
+      setDeleteTarget('bulk');
+      setShowDeleteModal(true);
     }
   };
 
@@ -50,18 +135,13 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
     // Mark as processing
     setProcessingToggles(prev => new Set(prev).add(id));
 
-    const updatedDebt = {
-      ...debt,
-      includeInTotal: debt.includeInTotal === false ? true : false
-    };
+    const newValue = !(debt.includeInTotal ?? true);
 
-    // Update locally first for immediate feedback
-    try {
-      await updateDebt(id, updatedDebt);
-    } catch (error) {
-      console.error('Failed to update debt include flag:', error);
-    }
-    onDebtDeleted(); // Refresh UI immediately
+    // Optimistic update
+    onOptimisticUpdate([id], { includeInTotal: newValue });
+
+    // Background sync
+    await onSync('update', [id], { includeInTotal: newValue });
 
     // Clear processing flag after a short delay
     setTimeout(() => {
@@ -71,7 +151,73 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
         return newSet;
       });
     }, 300);
+  };
 
+  // Bulk action handlers
+  const handleBulkMarkPaid = async () => {
+    const ids = Array.from(selectedDebts);
+
+    // Optimistic update
+    onOptimisticUpdate(ids, { currentAmount: 0 });
+
+    // Show celebration toast
+    showCelebrationToast(ids.length);
+
+    // Background sync
+    await onSync('update', ids, { currentAmount: 0 });
+
+    setSelectedDebts(new Set());
+  };
+
+  const handleBulkToggleInclude = async () => {
+    const ids = Array.from(selectedDebts);
+
+    // Determine new includeInTotal value (toggle based on first selected)
+    const firstDebt = debts.find(d => d.id === ids[0]);
+    const newValue = !(firstDebt?.includeInTotal ?? true);
+
+    // Optimistic update
+    onOptimisticUpdate(ids, { includeInTotal: newValue });
+
+    // Background sync
+    await onSync('update', ids, { includeInTotal: newValue });
+
+    setSelectedDebts(new Set());
+  };
+
+  const handleExport = (format: 'csv' | 'json') => {
+    const selectedDebtObjects = debts.filter(d => selectedDebts.has(d.id));
+    if (format === 'csv') {
+      exportToCSV(selectedDebtObjects);
+    } else {
+      exportToJSON(selectedDebtObjects);
+    }
+  };
+
+  const showCelebrationToast = (count: number) => {
+    const message = count === 1
+      ? t('debt.congratsSingle')
+      : t('debt.congratsMultiple', { count });
+
+    // Simple toast implementation
+    const toast = document.createElement('div');
+    toast.className = 'celebration-toast';
+    toast.innerHTML = `<span>🎉</span> ${message}`;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 10);
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => document.body.removeChild(toast), 300);
+    }, 3000);
+  };
+
+  const handleDontAskAgainChange = (value: boolean) => {
+    setDontAskAgain(value);
+    localStorage.setItem('debt-delete-no-confirm', value.toString());
   };
 
   const handleDuplicate = async (id: string) => {
@@ -85,10 +231,12 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
       };
       try {
         await addDebt(duplicatedDebt);
+        // For now, we'll need a full reload for duplicates
+        // Could be improved with optimistic add later
+        window.location.reload();
       } catch (error) {
         console.error('Failed to duplicate debt:', error);
       }
-      onDebtDeleted(); // Refresh the data
     }
   };
 
@@ -165,7 +313,7 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
     return <p className="no-data">{t('debt.noDebts')}</p>;
   }
 
-  const includedDebts = debts.filter(debt => debt.includeInTotal !== false);
+  const includedDebts = filteredDebts.filter(debt => debt.includeInTotal !== false);
   const totalOriginalDebt = includedDebts.reduce((sum, debt) => sum + debt.totalAmount, 0);
   const totalCurrentDebt = includedDebts.reduce((sum, debt) => {
     const { currentBalance } = calculateCurrentBalance(debt);
@@ -181,6 +329,38 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
 
   return (
     <div className="debt-list">
+      {/* Multi-select controls */}
+      <div className="debt-list-header">
+        <div className="debt-list-controls">
+          <label className="select-all-checkbox">
+            <input
+              type="checkbox"
+              checked={selectedDebts.size === filteredDebts.length && filteredDebts.length > 0}
+              onChange={handleSelectAll}
+            />
+            {t('debt.selectAll')}
+          </label>
+          <label className="hide-paid-toggle">
+            <input
+              type="checkbox"
+              checked={hidePaidOff}
+              onChange={(e) => setHidePaidOff(e.target.checked)}
+            />
+            {t('debt.hidePaidOff')}
+          </label>
+        </div>
+        {selectedDebts.size > 0 && (
+          <BulkActionsToolbar
+            selectedCount={selectedDebts.size}
+            onDelete={handleBulkDelete}
+            onMarkPaid={handleBulkMarkPaid}
+            onToggleInclude={handleBulkToggleInclude}
+            onExport={() => setShowExportModal(true)}
+            onClearSelection={() => setSelectedDebts(new Set())}
+          />
+        )}
+      </div>
+
       <div className="debt-summary">
         <h3>{t('overview.debtOverview')}</h3>
         <div className="summary-stats">
@@ -220,6 +400,7 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
 
       <div className="debt-table">
         <div className="debt-table-header">
+          <div className="col-checkbox"></div>
           <div className="col-name sortable" onClick={() => handleSort('name')}>
             {t('table.name')} {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
           </div>
@@ -248,7 +429,7 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
           <div className="col-actions">{t('table.actions')}</div>
         </div>
         
-        {sortDebts(debts).map(debt => {
+        {sortDebts(filteredDebts).map(debt => {
           // Calculate actual current balance based on payments made since start date
           const balanceInfo = calculateCurrentBalance(debt);
           // Use manual override if debt.currentAmount was manually set (different from totalAmount)
@@ -269,12 +450,23 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
           const isNearPayoff = monthsLeft > 0 && monthsLeft <= 6;
           const isHighInterest = debt.interestRate > 30;
           
+          const isDebtPaidOff = isPaidOff(debt);
+
           return (
-            <div 
-              key={debt.id} 
-              className={`debt-table-row ${isNearPayoff ? 'near-payoff' : ''} ${isHighInterest ? 'high-interest' : ''} ${debt.includeInTotal === false ? 'excluded-from-total' : ''}`}
+            <div
+              key={debt.id}
+              className={`debt-table-row ${isNearPayoff ? 'near-payoff' : ''} ${isHighInterest ? 'high-interest' : ''} ${debt.includeInTotal === false ? 'excluded-from-total' : ''} ${isDebtPaidOff ? 'paid-off' : ''}`}
             >
+              <div className="col-checkbox">
+                <input
+                  type="checkbox"
+                  className="debt-checkbox"
+                  checked={selectedDebts.has(debt.id)}
+                  onChange={() => handleSelectDebt(debt.id)}
+                />
+              </div>
               <div className="col-name">
+                {isDebtPaidOff && <PaidOffBadge />}
                 <strong>{debt.name}</strong>
               </div>
               
@@ -359,6 +551,26 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onDebtDeleted, onDebtEdit })
           );
         })}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSingleDeleteId(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        count={deleteTarget === 'single' ? 1 : selectedDebts.size}
+        dontAskAgain={dontAskAgain}
+        onDontAskAgainChange={handleDontAskAgainChange}
+      />
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExport}
+      />
     </div>
   );
 };
