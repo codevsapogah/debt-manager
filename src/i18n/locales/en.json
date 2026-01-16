@@ -65,7 +65,11 @@
     "exportData": "Export Data",
     "selectExportFormat": "Select export format:",
     "congratsSingle": "Congratulations! You've paid off your debt!",
-    "congratsMultiple": "Congratulations! You've paid off {{count}} debts!"
+    "congratsMultiple": "Congratulations! You've paid off {{count}} debts!",
+    "deleteSuccess": "Deleted successfully",
+    "updateSuccess": "Updated successfully",
+    "duplicateSuccess": "Duplicated successfully",
+    "showPaidOff": "Show Paid Off"
   },
   "income": {
     "title": "Income",
@@ -137,6 +141,7 @@
     "edit": "Edit",
     "close": "×",
     "clear": "Clear",
+    "total": "Total",
     "date": "Date: {{date}}",
     "month": "Month {{month}}"
   }
