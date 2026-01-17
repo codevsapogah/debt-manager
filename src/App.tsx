@@ -183,16 +183,10 @@ function AppContent() {
 
   // Show loading while data is being loaded
   if (loading) {
-    const loaderProps = {
-      loading: true,
-      size: 100,
-      colors: ['#5e72e4', '#825ee4', '#5e72e4']
-    };
-
     return (
       <div className="app">
         <div className="loading-container">
-          <GooeyCircleLoader {...loaderProps} />
+          <GooeyCircleLoader loading={true} size={100} colors={['#5e72e4', '#825ee4', '#5e72e4']} />
           <div className="loading-text" style={{ marginTop: '20px' }}>
             {t('chart.loadingData')}
           </div>
