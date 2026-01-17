@@ -13,6 +13,7 @@ import IncomeForm from './components/IncomeForm';
 import IncomeList from './components/IncomeList';
 import ExpenseForm from './components/ExpenseForm';
 import ExpenseList from './components/ExpenseList';
+import ExpenseListAntD from './components/ExpenseListAntD';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { loadFromStorage, bulkDeleteDebts, bulkUpdateDebts } from './utils/storage';
 import { loadFromFirestore, migrateLocalStorageToFirestore, bulkDeleteDebtsFromFirestore, bulkUpdateDebtsInFirestore } from './utils/firebaseStorage';
@@ -313,8 +314,7 @@ function AppContent() {
               </div>
 
               <div className="recurring-expenses-section">
-                <h3>{t('expense.expenses')}</h3>
-                <ExpenseList
+                <ExpenseListAntD
                   expenses={expenses}
                   onExpenseDeleted={handleDataUpdate}
                   onExpenseEdit={handleExpenseEdit}
