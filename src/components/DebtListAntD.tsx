@@ -221,11 +221,12 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
         return (
           <Progress
             percent={Math.round(progressPercent)}
-            size="small"
             strokeColor={{
               '0%': '#4f46e5',
               '100%': '#10b981',
             }}
+            strokeWidth={8}
+            format={(percent) => `${percent}%`}
           />
         );
       },
