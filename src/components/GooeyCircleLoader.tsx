@@ -1,35 +1,24 @@
 import React from 'react';
-import '../styles/GooeyCircleLoader.css';
+import './GooeyCircleLoader.css';
 
 interface GooeyCircleLoaderProps {
   loading?: boolean;
   size?: number;
-  duration?: number;
   colors?: string[];
 }
 
 const GooeyCircleLoader: React.FC<GooeyCircleLoaderProps> = ({
   loading = true,
   size = 100,
-  duration = 1.5,
-  colors = ['#5e72e4', '#825ee4', '#5e72e4']
+  colors = ['#5e72e4', '#825ee4', '#ef5777']
 }) => {
   if (!loading) return null;
 
-  const loaderStyle = {
-    width: size,
-    height: size,
-    '--duration': `${duration}s`,
-    '--color-1': colors[0],
-    '--color-2': colors[1] || colors[0],
-    '--color-3': colors[2] || colors[0],
-  } as React.CSSProperties;
-
   return (
-    <div className="gooey-circle-loader" style={loaderStyle}>
-      <svg width="0" height="0">
+    <div className="gooey-loader-container" style={{ width: size, height: size }}>
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
-          <filter id="gooey-filter">
+          <filter id="gooey-effect">
             <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
             <feColorMatrix
               in="blur"
@@ -41,13 +30,16 @@ const GooeyCircleLoader: React.FC<GooeyCircleLoaderProps> = ({
           </filter>
         </defs>
       </svg>
-      <div className="gooey-circles">
-        <div className="circle circle1"></div>
-        <div className="circle circle2"></div>
-        <div className="circle circle3"></div>
-        <div className="circle circle4"></div>
-        <div className="circle circle5"></div>
-        <div className="circle circle6"></div>
+      <div className="gooey-loader" style={{
+        width: size,
+        height: size,
+        '--color-1': colors[0],
+        '--color-2': colors[1] || colors[0],
+        '--color-3': colors[2] || colors[0],
+      } as React.CSSProperties}>
+        <div className="gooey-dot" style={{ '--delay': '0s' } as React.CSSProperties}></div>
+        <div className="gooey-dot" style={{ '--delay': '0.1s' } as React.CSSProperties}></div>
+        <div className="gooey-dot" style={{ '--delay': '0.2s' } as React.CSSProperties}></div>
       </div>
     </div>
   );

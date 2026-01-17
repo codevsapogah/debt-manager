@@ -18,7 +18,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import { loadFromStorage, bulkDeleteDebts, bulkUpdateDebts } from './utils/storage';
 import { loadFromFirestore, migrateLocalStorageToFirestore, bulkDeleteDebtsFromFirestore, bulkUpdateDebtsInFirestore } from './utils/firebaseStorage';
 import { Debt, IncomeSource, RecurringExpense } from './types';
-import { GooeyCircleLoader } from 'react-loaders-kit';
+import GooeyCircleLoader from './components/GooeyCircleLoader';
 
 function AppContent() {
   const { currentUser, logout } = useAuth();
