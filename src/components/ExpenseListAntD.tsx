@@ -1,13 +1,12 @@
 import React from 'react';
-import { Card, List, Tag, Button, Space, Typography, Empty, Checkbox } from 'antd';
-import { EditOutlined, DeleteOutlined, ShoppingOutlined } from '@ant-design/icons';
+import { Card, Tag, Button, Space, Typography, Empty, Checkbox } from 'antd';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { RecurringExpense } from '../types';
 import { deleteRecurringExpense, updateRecurringExpense } from '../utils/storage';
 import { formatCurrency } from '../utils/currency';
-import { useAuth } from '../contexts/AuthContext';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface ExpenseListAntDProps {
   expenses: RecurringExpense[];
@@ -21,7 +20,6 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
   onExpenseEdit
 }) => {
   const { t } = useTranslation();
-  const { currentUser } = useAuth();
 
   const handleDelete = async (id: string) => {
     if (window.confirm(t('expense.deleteConfirm'))) {
@@ -96,78 +94,68 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
       </div>
 
       {/* Expenses List */}
-      <Card
-        className="shadow-sm rounded-xl"
-        title={
-          <Space>
-            <ShoppingOutlined />
-            <span>{t('expense.expenses')}</span>
-            <Tag color="blue">{expenses.length} {t('expense.expensesCount')}</Tag>
-          </Space>
-        }
-        bodyStyle={{ padding: 0 }}
-      >
-        <List
-          dataSource={expenses}
-          renderItem={(expense) => (
-            <List.Item
-              className="hover:bg-gray-50 px-6"
-              actions={[
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {expenses.map((expense) => (
+          <Card
+            key={expense.id}
+            className="shadow-sm rounded-xl hover:bg-gray-50"
+            bodyStyle={{ padding: '16px' }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              {/* Checkbox */}
+              <Checkbox
+                checked={expense.includeInTotal !== false}
+                onChange={() => handleToggleIncludeInTotal(expense)}
+                style={{ marginTop: '2px' }}
+              />
+
+              {/* Content */}
+              <div style={{ flex: 1 }}>
+                {/* Title Row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <Text strong style={{ fontSize: '14px' }}>{expense.name}</Text>
+                  {expense.category && (
+                    <Tag color="default" style={{ fontSize: '11px', margin: 0 }}>
+                      {expense.category}
+                    </Tag>
+                  )}
+                </div>
+
+                {/* Details Row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <Tag color={getFrequencyColor(expense.frequency)} style={{ fontSize: '11px', margin: 0 }}>
+                    {t(`expense.frequencies.${expense.frequency}`)}
+                  </Tag>
+                  <Text type="secondary" style={{ fontSize: '12px' }}>
+                    {formatCurrency(expense.amount)}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: '11px' }}>
+                    → {formatCurrency(convertToMonthly(expense))}/мес
+                  </Text>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <Space size="small">
                 <Button
-                  key="edit"
                   type="text"
                   size="small"
                   icon={<EditOutlined />}
                   onClick={() => onExpenseEdit && onExpenseEdit(expense)}
                   className="text-blue-500 hover:text-blue-700"
-                />,
+                />
                 <Button
-                  key="delete"
                   type="text"
                   size="small"
                   danger
                   icon={<DeleteOutlined />}
                   onClick={() => handleDelete(expense.id)}
                 />
-              ]}
-            >
-              <List.Item.Meta
-                avatar={
-                  <Checkbox
-                    checked={expense.includeInTotal !== false}
-                    onChange={() => handleToggleIncludeInTotal(expense)}
-                  />
-                }
-                title={
-                  <Space>
-                    <span className="font-semibold text-gray-900">{expense.name}</span>
-                    {expense.category && (
-                      <Tag color="default" style={{ fontSize: '11px' }}>
-                        {expense.category}
-                      </Tag>
-                    )}
-                  </Space>
-                }
-                description={
-                  <Space direction="vertical" size={0}>
-                    <Space size="small">
-                      <Tag color={getFrequencyColor(expense.frequency)} style={{ fontSize: '11px' }}>
-                        {t(`expense.frequencies.${expense.frequency}`)}
-                      </Tag>
-                      <Text type="secondary" style={{ fontSize: '12px' }}>
-                        {formatCurrency(expense.amount)}
-                      </Text>
-                      <Text type="secondary" style={{ fontSize: '11px' }}>
-                        → {formatCurrency(convertToMonthly(expense))}/мес
-                      </Text>
-                    </Space>
-                  </Space>
-                }
-              />
-            </List.Item>
-          )}
-        />
-      </Card>
+              </Space>
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
