@@ -18,7 +18,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import { loadFromStorage, bulkDeleteDebts, bulkUpdateDebts } from './utils/storage';
 import { loadFromFirestore, migrateLocalStorageToFirestore, bulkDeleteDebtsFromFirestore, bulkUpdateDebtsInFirestore } from './utils/firebaseStorage';
 import { Debt, IncomeSource, RecurringExpense } from './types';
-import GooeyCircleLoader from './components/GooeyCircleLoader';
+import { GooeyCircleLoader } from 'react-loaders-kit';
 
 function AppContent() {
   const { currentUser, logout } = useAuth();
@@ -186,7 +186,6 @@ function AppContent() {
     const loaderProps = {
       loading: true,
       size: 100,
-      duration: 1.5,
       colors: ['#5e72e4', '#825ee4', '#5e72e4']
     };
 
