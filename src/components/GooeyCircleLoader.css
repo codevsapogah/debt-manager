@@ -1,0 +1,50 @@
+.gooey-loader-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.gooey-loader {
+  position: relative;
+  filter: url(#gooey-effect);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gooey-dot {
+  position: absolute;
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  animation: gooey-orbit 2s infinite ease-in-out;
+  animation-delay: var(--delay);
+}
+
+.gooey-dot:nth-child(1) {
+  background: var(--color-1);
+  animation-delay: 0s;
+}
+
+.gooey-dot:nth-child(2) {
+  background: var(--color-2);
+  animation-delay: 0.66s;
+}
+
+.gooey-dot:nth-child(3) {
+  background: var(--color-3);
+  animation-delay: 1.32s;
+}
+
+@keyframes gooey-orbit {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(35%, -35%) scale(0.8);
+  }
+  66% {
+    transform: translate(-35%, 35%) scale(1.1);
+  }
+}
