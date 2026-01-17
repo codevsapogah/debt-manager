@@ -326,17 +326,60 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="text-sm opacity-90 mb-2">{t('overview.currentDebt')}</div>
-          <div className="text-3xl font-bold">{formatCurrency(totalCurrentDebt)}</div>
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+            borderRadius: '16px',
+            padding: '24px',
+            color: 'white',
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+          }}
+        >
+          <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px' }}>
+            {t('overview.currentDebt')}
+          </div>
+          <div style={{ fontSize: '30px', fontWeight: 'bold' }}>
+            {formatCurrency(totalCurrentDebt)}
+          </div>
         </div>
-        <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="text-sm opacity-90 mb-2">{t('overview.totalPaidOff')}</div>
-          <div className="text-3xl font-bold">{formatCurrency(totalPaidOff)}</div>
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            borderRadius: '16px',
+            padding: '24px',
+            color: 'white',
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+          }}
+        >
+          <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px' }}>
+            {t('overview.totalPaidOff')}
+          </div>
+          <div style={{ fontSize: '30px', fontWeight: 'bold' }}>
+            {formatCurrency(totalPaidOff)}
+          </div>
         </div>
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-          <div className="text-sm opacity-90 mb-2">{t('overview.overallProgress')}</div>
-          <div className="text-3xl font-bold">{totalProgressPercent.toFixed(1)}%</div>
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',
+            borderRadius: '16px',
+            padding: '24px',
+            color: 'white',
+            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+          }}
+        >
+          <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '12px' }}>
+            {t('overview.overallProgress')}
+          </div>
+          <div style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '16px' }}>
+            {totalProgressPercent.toFixed(1)}%
+          </div>
+          <Progress
+            percent={Math.round(totalProgressPercent)}
+            strokeColor="#ffffff"
+            trailColor="rgba(255, 255, 255, 0.3)"
+            strokeWidth={10}
+            showInfo={false}
+          />
         </div>
       </div>
 
