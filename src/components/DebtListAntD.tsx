@@ -147,8 +147,8 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
       title: t('table.name'),
       dataIndex: 'name',
       key: 'name',
-      fixed: 'left',
-      width: 250,
+      width: 180,
+      ellipsis: true,
       render: (name: string, record: Debt) => (
         <Space direction="vertical" size={0}>
           <Space>
@@ -167,14 +167,14 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
       title: t('table.current'),
       dataIndex: 'currentAmount',
       key: 'currentAmount',
-      width: 150,
+      width: 120,
       render: (_, record: Debt) => {
         const { currentBalance } = calculateCurrentBalance(record);
         const actualCurrentBalance = record.currentAmount !== record.totalAmount
           ? record.currentAmount
           : currentBalance;
         return (
-          <span className={`font-mono font-semibold ${actualCurrentBalance <= 0 ? 'text-green-600' : 'text-gray-900'}`}>
+          <span className={`font-mono font-semibold ${actualCurrentBalance <= 0 ? 'text-green-600' : 'text-gray-900'}`} style={{ fontSize: '13px' }}>
             {formatCurrency(actualCurrentBalance)}
           </span>
         );
@@ -186,20 +186,10 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
       },
     },
     {
-      title: t('table.total'),
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
-      width: 150,
-      render: (amount: number) => (
-        <span className="font-mono text-gray-600">{formatCurrency(amount)}</span>
-      ),
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
-    },
-    {
       title: t('table.rate'),
       dataIndex: 'interestRate',
       key: 'interestRate',
-      width: 100,
+      width: 80,
       render: (rate: number) => {
         const color = rate > 30 ? 'error' : rate > 15 ? 'warning' : 'default';
         return <Tag color={color}>{rate.toFixed(1)}%</Tag>;
@@ -210,16 +200,16 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
       title: t('table.payment'),
       dataIndex: 'monthlyPayment',
       key: 'monthlyPayment',
-      width: 150,
+      width: 110,
       render: (payment: number) => (
-        payment ? <span className="font-mono">{formatCurrency(payment)}</span> : '-'
+        payment ? <span className="font-mono" style={{ fontSize: '13px' }}>{formatCurrency(payment)}</span> : '-'
       ),
       sorter: (a, b) => (a.monthlyPayment || 0) - (b.monthlyPayment || 0),
     },
     {
       title: t('table.progress'),
       key: 'progress',
-      width: 180,
+      width: 140,
       render: (_, record: Debt) => {
         const { currentBalance } = calculateCurrentBalance(record);
         const actualCurrentBalance = record.currentAmount !== record.totalAmount
@@ -248,19 +238,19 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
     {
       title: t('table.payoffDate'),
       key: 'payoffDate',
-      width: 120,
+      width: 100,
       render: (_, record: Debt) => {
         const projection = calculateDebtProjection(record);
         if (projection.length === 0) return <Tag>{t('overview.unknown')}</Tag>;
         if (isPaidOff(record)) return <Tag color="success">{t('overview.paid')}</Tag>;
         const lastPoint = projection[projection.length - 1];
-        return <span className="text-gray-600">{format(lastPoint.date, 'MMM yyyy')}</span>;
+        return <span className="text-gray-600" style={{ fontSize: '13px' }}>{format(lastPoint.date, 'MMM yyyy')}</span>;
       },
     },
     {
       title: t('table.inTotal'),
       key: 'includeInTotal',
-      width: 100,
+      width: 70,
       align: 'center',
       render: (_, record: Debt) => (
         <Checkbox
@@ -276,12 +266,13 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
     {
       title: t('table.actions'),
       key: 'actions',
-      fixed: 'right',
-      width: 120,
+      width: 90,
+      align: 'center',
       render: (_, record: Debt) => (
         <Space size="small">
           <Button
             type="text"
+            size="small"
             icon={<EditOutlined />}
             onClick={() => onDebtEdit(record)}
             className="text-blue-500 hover:text-blue-700"
@@ -305,7 +296,7 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
               ],
             }}
           >
-            <Button type="text" icon={<MoreOutlined />} />
+            <Button type="text" size="small" icon={<MoreOutlined />} />
           </Dropdown>
         </Space>
       ),
@@ -409,7 +400,7 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
           showSizeChanger: true,
           showTotal: (total) => `${t('common.total') || 'Total'}: ${total}`,
         }}
-        scroll={{ x: 1200 }}
+        scroll={{ x: 900 }}
         className="ant-table-custom shadow-sm rounded-xl overflow-hidden"
         rowClassName={(record) =>
           isPaidOff(record) ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50'
