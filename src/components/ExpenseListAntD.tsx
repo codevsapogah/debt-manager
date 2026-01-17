@@ -88,9 +88,21 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
   return (
     <div className="space-y-4">
       {/* Total Summary Card */}
-      <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white shadow-lg">
-        <div className="text-sm opacity-90 mb-2">{t('expense.totalMonthlyExpenses')}</div>
-        <div className="text-3xl font-bold">-{formatCurrency(getTotalMonthlyExpenses())}</div>
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+          borderRadius: '16px',
+          padding: '24px',
+          color: 'white',
+          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+        }}
+      >
+        <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px' }}>
+          {t('expense.totalMonthlyExpenses')}
+        </div>
+        <div style={{ fontSize: '30px', fontWeight: 'bold' }}>
+          -{formatCurrency(getTotalMonthlyExpenses())}
+        </div>
       </div>
 
       {/* Expenses List */}
