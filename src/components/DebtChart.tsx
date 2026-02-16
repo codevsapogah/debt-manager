@@ -349,35 +349,35 @@ const DebtChart: React.FC<DebtChartProps> = ({ debts, incomes, expenses = [] }) 
             <Line
               type="monotone"
               dataKey="remainingDebt"
-              stroke="#ff6b6b"
+              stroke="#6C5CE7"
               strokeWidth={3}
               name="Remaining Debt"
             />
             <Line
               type="monotone"
               dataKey="totalPaid"
-              stroke="#4ecdc4"
+              stroke="#00D68F"
               strokeWidth={2}
               name="Total Paid"
             />
             <Line
               type="monotone"
               dataKey="monthlyPayment"
-              stroke="#ff9f43"
+              stroke="#FFAA00"
               strokeWidth={2}
               name={t('chart.monthlyDebtPayment')}
             />
             <Line
               type="monotone"
               dataKey="remainingMoney"
-              stroke="#10ac84"
+              stroke="#4ECDC4"
               strokeWidth={2}
               name="Money Left After Payments"
             />
             <Line
               type="monotone"
               dataKey="availableIncome"
-              stroke="#45b7d1"
+              stroke="#5C5F6E"
               strokeWidth={2}
               strokeDasharray="5 5"
               name="Cumulative Available Income"
@@ -406,8 +406,8 @@ const DebtChart: React.FC<DebtChartProps> = ({ debts, incomes, expenses = [] }) 
               ]}
             />
             <Legend />
-            <Bar dataKey="interestPaid" fill="#ff9999" name="Interest Paid" />
-            <Bar dataKey="totalPaid" fill="#99ccff" name="Total Paid" />
+            <Bar dataKey="interestPaid" fill="#FF6B6B" name="Interest Paid" />
+            <Bar dataKey="totalPaid" fill="#00D68F" name="Total Paid" />
           </BarChart>
         </ResponsiveContainer>
       </div>

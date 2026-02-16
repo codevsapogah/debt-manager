@@ -54,7 +54,7 @@ const Login: React.FC = () => {
           <p>{t('auth.signInDescription')}</p>
 
           {error && (
-            <div className="error-message">
+            <div className="error-message" role="alert">
               {error}
             </div>
           )}

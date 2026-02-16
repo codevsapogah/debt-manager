@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { IncomeSource } from '../types';
 import { deleteIncomeSource, updateIncomeSource } from '../utils/storage';
 import { formatCurrency } from '../utils/currency';
@@ -120,7 +121,8 @@ const IncomeList: React.FC<IncomeListProps> = ({ incomes, onIncomeDeleted, onInc
                     e.stopPropagation();
                     handleToggleIncludeInTotal(income);
                   }}
-                  aria-label="Toggle include in total"
+                  aria-label={income.includeInTotal !== false ? t('table.excludeTooltip') : t('table.includeTooltip')}
+                  aria-pressed={income.includeInTotal !== false}
                   title={income.includeInTotal !== false ? t('table.excludeTooltip') : t('table.includeTooltip')}
                 >
                   <span className="dot"></span>
@@ -151,7 +153,7 @@ const IncomeList: React.FC<IncomeListProps> = ({ incomes, onIncomeDeleted, onInc
                 aria-label="Edit income source"
                 title={t('common.edit')}
               >
-                ✏️
+                <EditOutlined />
               </button>
               <button
                 className="btn-icon btn-delete"
@@ -159,7 +161,7 @@ const IncomeList: React.FC<IncomeListProps> = ({ incomes, onIncomeDeleted, onInc
                 aria-label="Delete income source"
                 title={t('common.delete')}
               >
-                🗑️
+                <DeleteOutlined />
               </button>
             </div>
           </div>

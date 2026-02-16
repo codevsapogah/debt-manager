@@ -133,8 +133,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
             onChange={handleInputChange}
             className={`form-input ${errors.name ? 'error' : ''}`}
             placeholder={t('expense.namePlaceholder')}
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? 'expense-name-error' : undefined}
           />
-          {errors.name && <span className="error-message">{errors.name}</span>}
+          {errors.name && <span id="expense-name-error" className="error-message" role="alert">{errors.name}</span>}
         </div>
 
         <div className="form-row">
@@ -149,8 +151,10 @@ const ExpenseForm: React.FC<ExpenseFormProps> = ({
               className={`form-input ${errors.amount ? 'error' : ''}`}
               placeholder="0"
               pattern="[0-9]*\.?[0-9]+"
+              aria-invalid={!!errors.amount}
+              aria-describedby={errors.amount ? 'expense-amount-error' : undefined}
             />
-            {errors.amount && <span className="error-message">{errors.amount}</span>}
+            {errors.amount && <span id="expense-amount-error" className="error-message" role="alert">{errors.amount}</span>}
           </div>
 
           <div className="form-group">
