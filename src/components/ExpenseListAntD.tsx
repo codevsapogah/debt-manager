@@ -1,6 +1,17 @@
 import React from 'react';
-import { Card, Tag, Button, Space, Typography, Empty, Checkbox } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Tag, Button, Space, Typography, Empty, Checkbox } from 'antd';
+import {
+  EditOutlined,
+  DeleteOutlined,
+  HomeOutlined,
+  CarOutlined,
+  ShoppingOutlined,
+  CoffeeOutlined,
+  MedicineBoxOutlined,
+  BookOutlined,
+  PhoneOutlined,
+  DollarOutlined
+} from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { RecurringExpense } from '../types';
 import { deleteRecurringExpense, updateRecurringExpense } from '../utils/storage';
@@ -67,9 +78,47 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
     }
   };
 
+  // Helper to get icon and color for each expense
+  const getExpenseIconAndColor = (expense: RecurringExpense): { icon: React.ReactNode; color: string; bgColor: string } => {
+    const categoryMap: Record<string, { icon: React.ReactNode; color: string; bgColor: string }> = {
+      'Rent': { icon: <HomeOutlined />, color: '#6C5CE7', bgColor: 'rgba(108, 92, 231, 0.15)' },
+      'Transport': { icon: <CarOutlined />, color: '#FFAA00', bgColor: 'rgba(255, 170, 0, 0.15)' },
+      'Shopping': { icon: <ShoppingOutlined />, color: '#FF6B6B', bgColor: 'rgba(255, 107, 107, 0.15)' },
+      'Food': { icon: <CoffeeOutlined />, color: '#4ECDC4', bgColor: 'rgba(78, 205, 196, 0.15)' },
+      'Health': { icon: <MedicineBoxOutlined />, color: '#FF6B6B', bgColor: 'rgba(255, 107, 107, 0.15)' },
+      'Education': { icon: <BookOutlined />, color: '#6C5CE7', bgColor: 'rgba(108, 92, 231, 0.15)' },
+      'Utilities': { icon: <PhoneOutlined />, color: '#00D68F', bgColor: 'rgba(0, 214, 143, 0.15)' },
+    };
+
+    // Try to match category
+    if (expense.category && categoryMap[expense.category]) {
+      return categoryMap[expense.category];
+    }
+
+    // Default based on hash
+    const colors = [
+      { color: '#6C5CE7', bgColor: 'rgba(108, 92, 231, 0.15)', icon: <DollarOutlined /> },
+      { color: '#FFAA00', bgColor: 'rgba(255, 170, 0, 0.15)', icon: <ShoppingOutlined /> },
+      { color: '#FF6B6B', bgColor: 'rgba(255, 107, 107, 0.15)', icon: <CoffeeOutlined /> },
+      { color: '#4ECDC4', bgColor: 'rgba(78, 205, 196, 0.15)', icon: <HomeOutlined /> },
+      { color: '#00D68F', bgColor: 'rgba(0, 214, 143, 0.15)', icon: <PhoneOutlined /> },
+      { color: '#8B8FA3', bgColor: 'rgba(139, 143, 163, 0.15)', icon: <CarOutlined /> },
+    ];
+
+    const hash = expense.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const colorIndex = hash % colors.length;
+    return colors[colorIndex];
+  };
+
   if (expenses.length === 0) {
     return (
-      <Card className="shadow-sm rounded-xl">
+      <div style={{
+        background: '#1A1D27',
+        borderRadius: '20px',
+        padding: '60px 24px',
+        border: '1px solid rgba(255, 255, 255, 0.06)',
+        textAlign: 'center'
+      }}>
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
@@ -81,7 +130,7 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
             </Space>
           }
         />
-      </Card>
+      </div>
     );
   }
 
@@ -90,83 +139,175 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
       {/* Total Summary Card */}
       <div
         style={{
-          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-          borderRadius: '16px',
+          background: 'rgba(26, 29, 39, 0.8)',
+          backdropFilter: 'blur(12px)',
+          borderRadius: '20px',
           padding: '24px',
-          color: 'white',
-          boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+          color: '#F1F2F4',
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+          borderTop: '3px solid #FF6B6B',
         }}
       >
-        <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px' }}>
+        <div style={{ fontSize: '14px', color: '#8B8FA3', marginBottom: '8px' }}>
           {t('expense.totalMonthlyExpenses')}
         </div>
-        <div style={{ fontSize: '30px', fontWeight: 'bold' }}>
+        <div style={{ fontSize: '30px', fontWeight: 'bold', fontFamily: "'JetBrains Mono', monospace", color: '#FF6B6B' }}>
           -{formatCurrency(getTotalMonthlyExpenses())}
         </div>
       </div>
 
       {/* Expenses List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {expenses.map((expense) => (
-          <Card
-            key={expense.id}
-            className="shadow-sm rounded-xl hover:bg-gray-50"
-            bodyStyle={{ padding: '16px' }}
-          >
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-              {/* Checkbox */}
-              <Checkbox
-                checked={expense.includeInTotal !== false}
-                onChange={() => handleToggleIncludeInTotal(expense)}
-                style={{ marginTop: '2px' }}
-              />
+      <div style={{
+        background: '#1A1D27',
+        borderRadius: '20px',
+        padding: '24px',
+        border: '1px solid rgba(255, 255, 255, 0.06)'
+      }}>
+        {/* List Header */}
+        <div style={{
+          marginBottom: '20px',
+          paddingBottom: '16px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+        }}>
+          <span style={{ fontSize: '16px', fontWeight: '600', color: '#F1F2F4' }}>
+            {t('expense.recurringExpenses')} ({expenses.length})
+          </span>
+        </div>
 
-              {/* Content */}
-              <div style={{ flex: 1 }}>
-                {/* Title Row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <Text strong style={{ fontSize: '14px' }}>{expense.name}</Text>
-                  {expense.category && (
-                    <Tag color="default" style={{ fontSize: '11px', margin: 0 }}>
-                      {expense.category}
-                    </Tag>
-                  )}
+        {/* Expense Items */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {expenses.map((expense) => {
+            const { icon, color, bgColor } = getExpenseIconAndColor(expense);
+            const monthlyAmount = convertToMonthly(expense);
+
+            return (
+              <div
+                key={expense.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  padding: '16px',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  borderRadius: '16px',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  transition: 'all 0.2s',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                {/* Checkbox */}
+                <Checkbox
+                  checked={expense.includeInTotal !== false}
+                  onChange={() => handleToggleIncludeInTotal(expense)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+
+                {/* Circular Icon */}
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: bgColor,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '20px',
+                  color: color
+                }}>
+                  {icon}
                 </div>
 
-                {/* Details Row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <Tag color={getFrequencyColor(expense.frequency)} style={{ fontSize: '11px', margin: 0 }}>
-                    {t(`expense.frequencies.${expense.frequency}`)}
-                  </Tag>
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    {formatCurrency(expense.amount)}
-                  </Text>
-                  <Text type="secondary" style={{ fontSize: '11px' }}>
-                    → {formatCurrency(convertToMonthly(expense))}/мес
-                  </Text>
+                {/* Content */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* Title Row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      color: '#F1F2F4',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {expense.name}
+                    </span>
+                    {expense.category && (
+                      <Tag color="default" style={{ fontSize: '11px' }}>
+                        {expense.category}
+                      </Tag>
+                    )}
+                  </div>
+
+                  {/* Details Row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <Tag color={getFrequencyColor(expense.frequency)} style={{ fontSize: '11px' }}>
+                      {t(`expense.frequencies.${expense.frequency}`)}
+                    </Tag>
+                    <span style={{ fontSize: '12px', color: '#8B8FA3' }}>
+                      {formatCurrency(expense.amount)}
+                    </span>
+                    {expense.frequency !== 'monthly' && (
+                      <span style={{ fontSize: '12px', color: '#5C5F6E' }}>
+                        → {formatCurrency(monthlyAmount)}/мес
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Amount */}
+                <div style={{ textAlign: 'right', marginRight: '12px' }}>
+                  <div style={{
+                    fontSize: '18px',
+                    fontWeight: '700',
+                    color: '#FF6B6B',
+                    marginBottom: '4px',
+                    fontFamily: "'JetBrains Mono', monospace"
+                  }}>
+                    -{formatCurrency(monthlyAmount)}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#8B8FA3' }}>
+                    {t('expense.perMonth')}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onExpenseEdit && onExpenseEdit(expense);
+                    }}
+                    style={{ color: '#6C5CE7' }}
+                  />
+                  <Button
+                    type="text"
+                    size="small"
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(expense.id);
+                    }}
+                  />
                 </div>
               </div>
-
-              {/* Actions */}
-              <Space size="small">
-                <Button
-                  type="text"
-                  size="small"
-                  icon={<EditOutlined />}
-                  onClick={() => onExpenseEdit && onExpenseEdit(expense)}
-                  className="text-blue-500 hover:text-blue-700"
-                />
-                <Button
-                  type="text"
-                  size="small"
-                  danger
-                  icon={<DeleteOutlined />}
-                  onClick={() => handleDelete(expense.id)}
-                />
-              </Space>
-            </div>
-          </Card>
-        ))}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

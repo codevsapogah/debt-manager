@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ConfigProvider, theme } from 'antd';
 import './App.css';
 import './i18n/config';
@@ -19,6 +19,41 @@ import { loadFromStorage, bulkDeleteDebts, bulkUpdateDebts } from './utils/stora
 import { loadFromFirestore, migrateLocalStorageToFirestore, bulkDeleteDebtsFromFirestore, bulkUpdateDebtsInFirestore } from './utils/firebaseStorage';
 import { Debt, IncomeSource, RecurringExpense } from './types';
 import GooeyCircleLoader from './components/GooeyCircleLoader';
+
+// Focus trap hook for modals
+function useFocusTrap(isOpen: boolean) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen || !ref.current) return;
+
+    const modal = ref.current;
+    const focusableEls = modal.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstEl = focusableEls[0];
+    const lastEl = focusableEls[focusableEls.length - 1];
+
+    firstEl?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') {
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault();
+          lastEl?.focus();
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault();
+          firstEl?.focus();
+        }
+      }
+    };
+
+    modal.addEventListener('keydown', handleKeyDown);
+    return () => modal.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
+  return ref;
+}
 
 function AppContent() {
   const { currentUser, logout } = useAuth();
@@ -176,6 +211,21 @@ function AppContent() {
     }
   };
 
+  const debtModalRef = useFocusTrap(showDebtForm);
+  const expenseModalRef = useFocusTrap(!!editingExpense);
+
+  // Close modals on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (showDebtForm) handleFormClose();
+        if (editingExpense) handleExpenseEditComplete();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showDebtForm, editingExpense]);
+
   // Show login screen if not authenticated
   if (!currentUser) {
     return <Login />;
@@ -186,7 +236,7 @@ function AppContent() {
     return (
       <div className="app">
         <div className="loading-container">
-          <GooeyCircleLoader loading={true} size={100} colors={['#5e72e4', '#825ee4', '#5e72e4']} />
+          <GooeyCircleLoader loading={true} size={100} colors={['#6C5CE7', '#7C6CF7', '#6C5CE7']} />
           <div className="loading-text" style={{ marginTop: '20px' }}>
             {t('chart.loadingData')}
           </div>
@@ -318,7 +368,7 @@ function AppContent() {
             {/* Expense Form Modal */}
             {editingExpense && (
               <div className="modal-overlay" onClick={handleExpenseEditComplete}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-content" ref={expenseModalRef} role="dialog" aria-modal="true" aria-label={editingExpense.id ? t('expense.editExpense') : t('expense.addExpense')} onClick={(e) => e.stopPropagation()}>
                   <div className="modal-header">
                     <h2>{editingExpense.id ? t('expense.editExpense') : t('expense.addExpense')}</h2>
                     <button className="modal-close" onClick={handleExpenseEditComplete}>{t('common.close')}</button>
@@ -343,7 +393,7 @@ function AppContent() {
       {/* Debt Form Modal */}
       {showDebtForm && (
         <div className="modal-overlay" onClick={handleFormClose}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-content" ref={debtModalRef} role="dialog" aria-modal="true" aria-label={editingDebt ? t('debt.editDebt') : t('debt.addDebt')} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{editingDebt ? t('debt.editDebt') : t('debt.addDebt')}</h2>
               <button className="modal-close" onClick={handleFormClose}>{t('common.close')}</button>
@@ -369,19 +419,28 @@ function App() {
   return (
     <ConfigProvider
       theme={{
-        algorithm: theme.defaultAlgorithm,
+        algorithm: theme.darkAlgorithm,
         token: {
-          colorPrimary: '#4f46e5',
-          colorSuccess: '#10b981',
-          colorWarning: '#f59e0b',
-          colorError: '#ef4444',
+          colorPrimary: '#6C5CE7',
+          colorSuccess: '#00D68F',
+          colorWarning: '#FFAA00',
+          colorError: '#FF6B6B',
+          colorBgContainer: '#1A1D27',
+          colorBgElevated: '#22252F',
+          colorBgLayout: '#0F1117',
+          colorBorder: 'rgba(255, 255, 255, 0.06)',
+          colorBorderSecondary: 'rgba(255, 255, 255, 0.06)',
+          colorText: '#F1F2F4',
+          colorTextSecondary: '#8B8FA3',
+          colorTextTertiary: '#5C5F6E',
           borderRadius: 12,
           fontSize: 14,
+          fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif",
         },
         components: {
           Table: {
             borderRadius: 16,
-            headerBg: '#f9fafb',
+            headerBg: '#1A1D27',
           },
           Button: {
             borderRadius: 10,
@@ -389,6 +448,12 @@ function App() {
           },
           Modal: {
             borderRadius: 16,
+          },
+          Tag: {
+            borderRadiusSM: 6,
+          },
+          Progress: {
+            remainingColor: 'rgba(255, 255, 255, 0.08)',
           },
         },
       }}

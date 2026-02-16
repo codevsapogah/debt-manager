@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Tag, Space, Checkbox, Modal, message, Dropdown, Progress } from 'antd';
+import { Button, Tag, Space, Checkbox, Modal, message, Dropdown, Progress } from 'antd';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -9,16 +9,20 @@ import {
   EyeInvisibleOutlined,
   EyeOutlined,
   TrophyOutlined,
-  MoreOutlined
+  MoreOutlined,
+  DollarOutlined,
+  BankOutlined,
+  CreditCardOutlined,
+  HomeOutlined,
+  CarOutlined,
+  ShoppingOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
-import type { ColumnsType } from 'antd/es/table';
 import { Debt } from '../types';
 import { addDebt } from '../utils/storage';
-import { calculateDebtProjection, calculateCurrentBalance } from '../utils/calculations';
+import { calculateCurrentBalance } from '../utils/calculations';
 import { formatCurrency } from '../utils/currency';
-import { format } from 'date-fns';
 import { exportToCSV, exportToJSON } from '../utils/export';
 
 interface DebtListAntDProps {
@@ -52,6 +56,24 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
   };
 
   const filteredDebts = hidePaidOff ? debts.filter(debt => !isPaidOff(debt)) : debts;
+
+  // Helper to get icon and color for each debt
+  const getDebtIconAndColor = (debt: Debt, index: number): { icon: React.ReactNode; color: string; bgColor: string } => {
+    const colors = [
+      { color: '#6C5CE7', bgColor: 'rgba(108, 92, 231, 0.15)', icon: <BankOutlined /> },
+      { color: '#FFAA00', bgColor: 'rgba(255, 170, 0, 0.15)', icon: <CreditCardOutlined /> },
+      { color: '#FF6B6B', bgColor: 'rgba(255, 107, 107, 0.15)', icon: <ShoppingOutlined /> },
+      { color: '#4ECDC4', bgColor: 'rgba(78, 205, 196, 0.15)', icon: <DollarOutlined /> },
+      { color: '#00D68F', bgColor: 'rgba(0, 214, 143, 0.15)', icon: <HomeOutlined /> },
+      { color: '#8B8FA3', bgColor: 'rgba(139, 143, 163, 0.15)', icon: <CarOutlined /> },
+    ];
+
+    // Assign color based on hash of debt name for consistency
+    const hash = debt.name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const colorIndex = hash % colors.length;
+
+    return colors[colorIndex];
+  };
 
   const handleDelete = (ids: string[]) => {
     if (dontAskAgain) {
@@ -142,173 +164,19 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
     window.location.reload();
   };
 
-  const columns: ColumnsType<Debt> = [
-    {
-      title: <span style={{ fontSize: '12px' }}>{t('table.name')}</span>,
-      dataIndex: 'name',
-      key: 'name',
-      width: 180,
-      ellipsis: true,
-      render: (name: string, record: Debt) => (
-        <Space direction="vertical" size={0}>
-          <Space>
-            {isPaidOff(record) && (
-              <Tag icon={<TrophyOutlined />} color="success" className="animate-pulse" style={{ fontSize: '11px' }}>
-                {t('debt.paidOff')}
-              </Tag>
-            )}
-            <span className="font-semibold text-gray-900" style={{ fontSize: '13px' }}>{name}</span>
-          </Space>
-        </Space>
-      ),
-      sorter: (a, b) => a.name.localeCompare(b.name),
-    },
-    {
-      title: <span style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>{t('table.current')}</span>,
-      dataIndex: 'currentAmount',
-      key: 'currentAmount',
-      width: 120,
-      render: (_, record: Debt) => {
-        const { currentBalance } = calculateCurrentBalance(record);
-        const actualCurrentBalance = record.currentAmount !== record.totalAmount
-          ? record.currentAmount
-          : currentBalance;
-        return (
-          <span className={`font-mono font-semibold ${actualCurrentBalance <= 0 ? 'text-green-600' : 'text-gray-900'}`} style={{ fontSize: '12px' }}>
-            {formatCurrency(actualCurrentBalance)}
-          </span>
-        );
-      },
-      sorter: (a, b) => {
-        const aBalance = calculateCurrentBalance(a).currentBalance;
-        const bBalance = calculateCurrentBalance(b).currentBalance;
-        return aBalance - bBalance;
-      },
-    },
-    {
-      title: <span style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>{t('table.rate')}</span>,
-      dataIndex: 'interestRate',
-      key: 'interestRate',
-      width: 70,
-      render: (rate: number) => {
-        const color = rate > 30 ? 'error' : rate > 15 ? 'warning' : 'default';
-        return <Tag color={color} style={{ fontSize: '11px' }}>{rate.toFixed(1)}%</Tag>;
-      },
-      sorter: (a, b) => a.interestRate - b.interestRate,
-    },
-    {
-      title: <span style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>{t('table.payment')}</span>,
-      dataIndex: 'monthlyPayment',
-      key: 'monthlyPayment',
-      width: 110,
-      render: (payment: number) => (
-        payment ? <span className="font-mono" style={{ fontSize: '12px' }}>{formatCurrency(payment)}</span> : '-'
-      ),
-      sorter: (a, b) => (a.monthlyPayment || 0) - (b.monthlyPayment || 0),
-    },
-    {
-      title: <span style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>{t('table.progress')}</span>,
-      key: 'progress',
-      width: 130,
-      render: (_, record: Debt) => {
-        const { currentBalance } = calculateCurrentBalance(record);
-        const actualCurrentBalance = record.currentAmount !== record.totalAmount
-          ? record.currentAmount
-          : currentBalance;
-        const progressPercent = record.totalAmount > 0
-          ? ((record.totalAmount - actualCurrentBalance) / record.totalAmount) * 100
-          : 0;
-        return (
-          <Progress
-            percent={Math.round(progressPercent)}
-            strokeColor={{
-              '0%': '#4f46e5',
-              '100%': '#10b981',
-            }}
-            strokeWidth={8}
-            format={(percent) => `${percent}%`}
-          />
-        );
-      },
-      sorter: (a, b) => {
-        const aProgress = (a.totalAmount - calculateCurrentBalance(a).currentBalance) / a.totalAmount;
-        const bProgress = (b.totalAmount - calculateCurrentBalance(b).currentBalance) / b.totalAmount;
-        return aProgress - bProgress;
-      },
-    },
-    {
-      title: <span style={{ fontSize: '12px' }}>{t('table.payoffDate')}</span>,
-      key: 'payoffDate',
-      width: 100,
-      render: (_, record: Debt) => {
-        const projection = calculateDebtProjection(record);
-        if (projection.length === 0) return <Tag style={{ fontSize: '11px' }}>{t('overview.unknown')}</Tag>;
-        if (isPaidOff(record)) return <Tag color="success" style={{ fontSize: '11px' }}>{t('overview.paid')}</Tag>;
-        const lastPoint = projection[projection.length - 1];
-        return <span className="text-gray-600" style={{ fontSize: '12px' }}>{format(lastPoint.date, 'MMM yy')}</span>;
-      },
-    },
-    {
-      title: <span style={{ fontSize: '12px', whiteSpace: 'nowrap' }}>{t('table.inTotal')}</span>,
-      key: 'includeInTotal',
-      width: 60,
-      align: 'center',
-      render: (_, record: Debt) => (
-        <Checkbox
-          checked={record.includeInTotal !== false}
-          onChange={() => {
-            const newValue = !(record.includeInTotal ?? true);
-            onOptimisticUpdate([record.id], { includeInTotal: newValue });
-            onSync('update', [record.id], { includeInTotal: newValue });
-          }}
-        />
-      ),
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 80,
-      align: 'center',
-      render: (_, record: Debt) => (
-        <Space size="small">
-          <Button
-            type="text"
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => onDebtEdit(record)}
-            className="text-blue-500 hover:text-blue-700"
-          />
-          <Dropdown
-            menu={{
-              items: [
-                {
-                  key: 'duplicate',
-                  icon: <CopyOutlined />,
-                  label: t('debt.duplicate'),
-                  onClick: () => handleDuplicate(record),
-                },
-                {
-                  key: 'delete',
-                  icon: <DeleteOutlined />,
-                  label: t('common.delete'),
-                  danger: true,
-                  onClick: () => handleDelete([record.id]),
-                },
-              ],
-            }}
-          >
-            <Button type="text" size="small" icon={<MoreOutlined />} />
-          </Dropdown>
-        </Space>
-      ),
-    },
-  ];
+  const handleSelectDebt = (debtId: string) => {
+    const newSelectedKeys = selectedRowKeys.includes(debtId)
+      ? selectedRowKeys.filter(id => id !== debtId)
+      : [...selectedRowKeys, debtId];
+    setSelectedRowKeys(newSelectedKeys);
+  };
 
-  const rowSelection = {
-    selectedRowKeys,
-    onChange: (newSelectedRowKeys: React.Key[]) => {
-      setSelectedRowKeys(newSelectedRowKeys);
-    },
+  const handleSelectAll = () => {
+    if (selectedRowKeys.length === filteredDebts.length) {
+      setSelectedRowKeys([]);
+    } else {
+      setSelectedRowKeys(filteredDebts.map(debt => debt.id));
+    }
   };
 
   // Calculate totals
@@ -326,65 +194,113 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
     <div className="space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Current Debt Card */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-            borderRadius: '16px',
-            padding: '24px',
-            color: 'white',
-            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+            background: 'rgba(26, 29, 39, 0.8)',
+            backdropFilter: 'blur(12px)',
+            borderRadius: '20px',
+            padding: '28px',
+            color: '#F1F2F4',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            borderTop: '3px solid #6C5CE7',
           }}
         >
-          <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px' }}>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: '600',
+            letterSpacing: '0.5px',
+            textTransform: 'uppercase',
+            marginBottom: '12px',
+            color: '#8B8FA3'
+          }}>
             {t('overview.currentDebt')}
           </div>
-          <div style={{ fontSize: '30px', fontWeight: 'bold' }}>
+          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>
             {formatCurrency(totalCurrentDebt)}
           </div>
+          <div style={{ fontSize: '13px', color: '#5C5F6E' }}>
+            Total Debt
+          </div>
         </div>
+
+        {/* Paid Off Card */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            borderRadius: '16px',
-            padding: '24px',
-            color: 'white',
-            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+            background: 'rgba(26, 29, 39, 0.8)',
+            backdropFilter: 'blur(12px)',
+            borderRadius: '20px',
+            padding: '28px',
+            color: '#F1F2F4',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            borderTop: '3px solid #00D68F',
           }}
         >
-          <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '8px' }}>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: '600',
+            letterSpacing: '0.5px',
+            textTransform: 'uppercase',
+            marginBottom: '12px',
+            color: '#8B8FA3'
+          }}>
             {t('overview.totalPaidOff')}
           </div>
-          <div style={{ fontSize: '30px', fontWeight: 'bold' }}>
+          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>
             {formatCurrency(totalPaidOff)}
           </div>
+          <div style={{ fontSize: '13px', color: '#5C5F6E' }}>
+            Total Paid
+          </div>
         </div>
+
+        {/* Overall Progress Card */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)',
-            borderRadius: '16px',
-            padding: '24px',
-            color: 'white',
-            boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)'
+            background: 'rgba(26, 29, 39, 0.8)',
+            backdropFilter: 'blur(12px)',
+            borderRadius: '20px',
+            padding: '28px',
+            color: '#F1F2F4',
+            border: '1px solid rgba(255, 255, 255, 0.06)',
+            borderTop: '3px solid #FFAA00',
           }}
         >
-          <div style={{ fontSize: '14px', opacity: 0.9, marginBottom: '12px' }}>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: '600',
+            letterSpacing: '0.5px',
+            textTransform: 'uppercase',
+            marginBottom: '12px',
+            color: '#8B8FA3'
+          }}>
             {t('overview.overallProgress')}
           </div>
-          <div style={{ fontSize: '30px', fontWeight: 'bold', marginBottom: '16px' }}>
+          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '16px', fontFamily: "'JetBrains Mono', monospace" }}>
             {totalProgressPercent.toFixed(1)}%
           </div>
           <Progress
             percent={Math.round(totalProgressPercent)}
-            strokeColor="#ffffff"
-            trailColor="rgba(255, 255, 255, 0.3)"
-            strokeWidth={10}
+            strokeColor="#6C5CE7"
+            trailColor="rgba(255, 255, 255, 0.08)"
+            strokeWidth={8}
             showInfo={false}
           />
         </div>
       </div>
 
       {/* Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '16px',
+        background: '#1A1D27',
+        padding: '20px 24px',
+        borderRadius: '20px',
+        border: '1px solid rgba(255, 255, 255, 0.06)'
+      }}>
         <Space size="large">
           <Button
             icon={hidePaidOff ? <EyeOutlined /> : <EyeInvisibleOutlined />}
@@ -433,23 +349,224 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
         )}
       </div>
 
-      {/* Table */}
-      <Table
-        rowSelection={rowSelection}
-        columns={columns}
-        dataSource={filteredDebts}
-        rowKey="id"
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `${t('common.total') || 'Total'}: ${total}`,
-        }}
-        scroll={{ x: 850 }}
-        className="ant-table-custom shadow-sm rounded-xl overflow-hidden"
-        rowClassName={(record) =>
-          isPaidOff(record) ? 'bg-green-50 hover:bg-green-100' : 'hover:bg-gray-50'
-        }
-      />
+      {/* Transaction List */}
+      <div style={{
+        background: '#1A1D27',
+        borderRadius: '20px',
+        padding: '24px',
+        border: '1px solid rgba(255, 255, 255, 0.06)'
+      }}>
+        {/* List Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '20px',
+          paddingBottom: '16px',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Checkbox
+              checked={selectedRowKeys.length === filteredDebts.length && filteredDebts.length > 0}
+              indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < filteredDebts.length}
+              onChange={handleSelectAll}
+            />
+            <span style={{ fontSize: '16px', fontWeight: '600', color: '#F1F2F4' }}>
+              {t('debt.debts')} ({filteredDebts.length})
+            </span>
+          </div>
+        </div>
+
+        {/* Transaction Items */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {filteredDebts.map((debt, index) => {
+            const { currentBalance } = calculateCurrentBalance(debt);
+            const actualCurrentBalance = debt.currentAmount !== debt.totalAmount
+              ? debt.currentAmount
+              : currentBalance;
+            const progressPercent = debt.totalAmount > 0
+              ? ((debt.totalAmount - actualCurrentBalance) / debt.totalAmount) * 100
+              : 0;
+            const { icon, color, bgColor } = getDebtIconAndColor(debt, index);
+            const paidOff = isPaidOff(debt);
+
+            return (
+              <div
+                key={debt.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px',
+                  padding: '16px',
+                  background: paidOff ? 'rgba(0, 214, 143, 0.06)' : 'rgba(255, 255, 255, 0.02)',
+                  borderRadius: '16px',
+                  border: `1px solid ${paidOff ? 'rgba(0, 214, 143, 0.15)' : 'rgba(255, 255, 255, 0.06)'}`,
+                  transition: 'all 0.2s',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = paidOff ? 'rgba(0, 214, 143, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = paidOff ? 'rgba(0, 214, 143, 0.06)' : 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                {/* Checkbox */}
+                <Checkbox
+                  checked={selectedRowKeys.includes(debt.id)}
+                  onChange={() => handleSelectDebt(debt.id)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+
+                {/* Circular Icon */}
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: bgColor,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  fontSize: '20px',
+                  color: color
+                }}>
+                  {icon}
+                </div>
+
+                {/* Content */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* Title Row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span style={{
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      color: '#F1F2F4',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {debt.name}
+                    </span>
+                    {paidOff && (
+                      <Tag icon={<TrophyOutlined />} color="success" style={{ fontSize: '11px' }}>
+                        {t('debt.paidOff')}
+                      </Tag>
+                    )}
+                  </div>
+
+                  {/* Details Row */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <Tag color={debt.interestRate > 30 ? 'error' : debt.interestRate > 15 ? 'warning' : 'default'} style={{ fontSize: '11px' }}>
+                      {debt.interestRate.toFixed(1)}%
+                    </Tag>
+                    {debt.monthlyPayment && (
+                      <span style={{ fontSize: '12px', color: '#8B8FA3' }}>
+                        {formatCurrency(debt.monthlyPayment)}/мес
+                      </span>
+                    )}
+                    <div style={{ flex: 1, minWidth: '120px', maxWidth: '200px' }}>
+                      <Progress
+                        percent={Math.round(progressPercent)}
+                        strokeColor={{
+                          '0%': color,
+                          '100%': '#10b981',
+                        }}
+                        strokeWidth={6}
+                        size="small"
+                        format={(percent) => `${percent}%`}
+                        style={{ fontSize: '11px' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Amount */}
+                <div style={{ textAlign: 'right', marginRight: '12px' }}>
+                  <div style={{
+                    fontSize: '18px',
+                    fontWeight: '700',
+                    color: paidOff ? '#00D68F' : '#F1F2F4',
+                    marginBottom: '4px',
+                    fontFamily: "'JetBrains Mono', monospace"
+                  }}>
+                    {formatCurrency(actualCurrentBalance)}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#8B8FA3' }}>
+                    {t('table.of')} {formatCurrency(debt.totalAmount)}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div style={{ display: 'flex', gap: '4px' }} onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={debt.includeInTotal !== false}
+                    onChange={() => {
+                      const newValue = !(debt.includeInTotal ?? true);
+                      onOptimisticUpdate([debt.id], { includeInTotal: newValue });
+                      onSync('update', [debt.id], { includeInTotal: newValue });
+                    }}
+                    title={t('table.inTotal')}
+                  />
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDebtEdit(debt);
+                    }}
+                    style={{ color: '#6C5CE7' }}
+                  />
+                  <Dropdown
+                    menu={{
+                      items: [
+                        {
+                          key: 'duplicate',
+                          icon: <CopyOutlined />,
+                          label: t('debt.duplicate'),
+                          onClick: () => handleDuplicate(debt),
+                        },
+                        {
+                          key: 'delete',
+                          icon: <DeleteOutlined />,
+                          label: t('common.delete'),
+                          danger: true,
+                          onClick: () => handleDelete([debt.id]),
+                        },
+                      ],
+                    }}
+                  >
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<MoreOutlined />}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </Dropdown>
+                </div>
+              </div>
+            );
+          })}
+
+          {filteredDebts.length === 0 && (
+            <div style={{
+              textAlign: 'center',
+              padding: '60px 20px',
+              color: '#5C5F6E'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}><DollarOutlined /></div>
+              <div style={{ fontSize: '16px', fontWeight: '500' }}>
+                {hidePaidOff ? t('debt.noPaidOffDebts') : t('debt.noDebts')}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

@@ -6,6 +6,7 @@ import { addDebt } from '../utils/storage';
 import { calculateDebtProjection, calculateCurrentBalance } from '../utils/calculations';
 import { formatCurrency } from '../utils/currency';
 import { format } from 'date-fns';
+import { EditOutlined, CopyOutlined, DeleteOutlined } from '@ant-design/icons';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { BulkActionsToolbar } from './BulkActionsToolbar';
 import { PaidOffBadge } from './PaidOffBadge';
@@ -310,7 +311,11 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onOptimisticDelete, onOptimi
   };
 
   if (debts.length === 0) {
-    return <p className="no-data">{t('debt.noDebts')}</p>;
+    return (
+      <div className="no-data">
+        <p>{t('debt.noDebts')}</p>
+      </div>
+    );
   }
 
   const includedDebts = filteredDebts.filter(debt => debt.includeInTotal !== false);
@@ -517,6 +522,8 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onOptimisticDelete, onOptimi
                     handleToggleIncludeInTotal(debt.id);
                   }}
                   title={debt.includeInTotal !== false ? t('table.excludeTooltip') : t('table.includeTooltip')}
+                  aria-label={debt.includeInTotal !== false ? t('table.excludeTooltip') : t('table.includeTooltip')}
+                  aria-pressed={debt.includeInTotal !== false}
                 >
                   <span className="dot"></span>
                 </button>
@@ -524,26 +531,29 @@ const DebtList: React.FC<DebtListProps> = ({ debts, onOptimisticDelete, onOptimi
               
               <div className="col-actions">
                 <div className="actions-vertical">
-                  <button 
-                    className="mini-btn edit-mini-btn" 
+                  <button
+                    className="mini-btn edit-mini-btn"
                     onClick={() => handleEdit(debt.id)}
-                    title="Edit debt"
+                    title={t('common.edit')}
+                    aria-label={`${t('common.edit')} ${debt.name}`}
                   >
-                    📝
+                    <EditOutlined />
                   </button>
-                  <button 
-                    className="mini-btn duplicate-mini-btn" 
+                  <button
+                    className="mini-btn duplicate-mini-btn"
                     onClick={() => handleDuplicate(debt.id)}
-                    title="Duplicate debt"
+                    title={t('debt.copy')}
+                    aria-label={`${t('debt.copy')} ${debt.name}`}
                   >
-                    📋
+                    <CopyOutlined />
                   </button>
-                  <button 
-                    className="mini-btn delete-mini-btn" 
+                  <button
+                    className="mini-btn delete-mini-btn"
                     onClick={() => handleDelete(debt.id, debt.name)}
-                    title="Delete debt"
+                    title={t('common.delete')}
+                    aria-label={`${t('common.delete')} ${debt.name}`}
                   >
-                    🗑️
+                    <DeleteOutlined />
                   </button>
                 </div>
               </div>
