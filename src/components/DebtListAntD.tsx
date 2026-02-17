@@ -197,13 +197,13 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
         {/* Current Debt Card */}
         <div
           style={{
-            background: 'rgba(26, 29, 39, 0.8)',
+            background: 'var(--bg-surface-glass)',
             backdropFilter: 'blur(12px)',
             borderRadius: '20px',
             padding: '28px',
-            color: '#F1F2F4',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
-            borderTop: '3px solid #6C5CE7',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border-subtle)',
+            borderTop: '3px solid var(--accent)',
           }}
         >
           <div style={{
@@ -212,14 +212,14 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
             letterSpacing: '0.5px',
             textTransform: 'uppercase',
             marginBottom: '12px',
-            color: '#8B8FA3'
+            color: 'var(--text-secondary)'
           }}>
             {t('overview.currentDebt')}
           </div>
-          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>
+          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '4px', fontFamily: 'var(--font-mono)' }}>
             {formatCurrency(totalCurrentDebt)}
           </div>
-          <div style={{ fontSize: '13px', color: '#5C5F6E' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-tertiary)' }}>
             Total Debt
           </div>
         </div>
@@ -227,13 +227,13 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
         {/* Paid Off Card */}
         <div
           style={{
-            background: 'rgba(26, 29, 39, 0.8)',
+            background: 'var(--bg-surface-glass)',
             backdropFilter: 'blur(12px)',
             borderRadius: '20px',
             padding: '28px',
-            color: '#F1F2F4',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
-            borderTop: '3px solid #00D68F',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border-subtle)',
+            borderTop: '3px solid var(--success)',
           }}
         >
           <div style={{
@@ -242,14 +242,14 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
             letterSpacing: '0.5px',
             textTransform: 'uppercase',
             marginBottom: '12px',
-            color: '#8B8FA3'
+            color: 'var(--text-secondary)'
           }}>
             {t('overview.totalPaidOff')}
           </div>
-          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '4px', fontFamily: "'JetBrains Mono', monospace" }}>
+          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '4px', fontFamily: 'var(--font-mono)' }}>
             {formatCurrency(totalPaidOff)}
           </div>
-          <div style={{ fontSize: '13px', color: '#5C5F6E' }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-tertiary)' }}>
             Total Paid
           </div>
         </div>
@@ -257,13 +257,13 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
         {/* Overall Progress Card */}
         <div
           style={{
-            background: 'rgba(26, 29, 39, 0.8)',
+            background: 'var(--bg-surface-glass)',
             backdropFilter: 'blur(12px)',
             borderRadius: '20px',
             padding: '28px',
-            color: '#F1F2F4',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
-            borderTop: '3px solid #FFAA00',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border-subtle)',
+            borderTop: '3px solid var(--warning)',
           }}
         >
           <div style={{
@@ -272,17 +272,16 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
             letterSpacing: '0.5px',
             textTransform: 'uppercase',
             marginBottom: '12px',
-            color: '#8B8FA3'
+            color: 'var(--text-secondary)'
           }}>
             {t('overview.overallProgress')}
           </div>
-          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '16px', fontFamily: "'JetBrains Mono', monospace" }}>
+          <div style={{ fontSize: '32px', fontWeight: '700', marginBottom: '16px', fontFamily: 'var(--font-mono)' }}>
             {totalProgressPercent.toFixed(1)}%
           </div>
           <Progress
             percent={Math.round(totalProgressPercent)}
             strokeColor="#6C5CE7"
-            trailColor="rgba(255, 255, 255, 0.08)"
             strokeWidth={8}
             showInfo={false}
           />
@@ -296,10 +295,10 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: '16px',
-        background: '#1A1D27',
+        background: 'var(--bg-surface)',
         padding: '20px 24px',
         borderRadius: '20px',
-        border: '1px solid rgba(255, 255, 255, 0.06)'
+        border: '1px solid var(--border-subtle)'
       }}>
         <Space size="large">
           <Button
@@ -351,10 +350,10 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
 
       {/* Transaction List */}
       <div style={{
-        background: '#1A1D27',
+        background: 'var(--bg-surface)',
         borderRadius: '20px',
         padding: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.06)'
+        border: '1px solid var(--border-subtle)'
       }}>
         {/* List Header */}
         <div style={{
@@ -363,7 +362,7 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
           justifyContent: 'space-between',
           marginBottom: '20px',
           paddingBottom: '16px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+          borderBottom: '1px solid var(--border-subtle)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <Checkbox
@@ -371,7 +370,7 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
               indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < filteredDebts.length}
               onChange={handleSelectAll}
             />
-            <span style={{ fontSize: '16px', fontWeight: '600', color: '#F1F2F4' }}>
+            <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
               {t('debt.debts')} ({filteredDebts.length})
             </span>
           </div>
@@ -398,19 +397,19 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
                   alignItems: 'center',
                   gap: '16px',
                   padding: '16px',
-                  background: paidOff ? 'rgba(0, 214, 143, 0.06)' : 'rgba(255, 255, 255, 0.02)',
+                  background: paidOff ? 'var(--bg-item-paid)' : 'var(--bg-item)',
                   borderRadius: '16px',
-                  border: `1px solid ${paidOff ? 'rgba(0, 214, 143, 0.15)' : 'rgba(255, 255, 255, 0.06)'}`,
+                  border: `1px solid ${paidOff ? 'var(--border-paid)' : 'var(--border-subtle)'}`,
                   transition: 'all 0.2s',
                   cursor: 'pointer'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = paidOff ? 'rgba(0, 214, 143, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.background = paidOff ? 'var(--bg-item-paid-hover)' : 'var(--bg-item-hover)';
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = paidOff ? 'rgba(0, 214, 143, 0.06)' : 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.background = paidOff ? 'var(--bg-item-paid)' : 'var(--bg-item)';
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
@@ -445,7 +444,7 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
                     <span style={{
                       fontSize: '15px',
                       fontWeight: '600',
-                      color: '#F1F2F4',
+                      color: 'var(--text-primary)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
@@ -465,7 +464,7 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
                       {debt.interestRate.toFixed(1)}%
                     </Tag>
                     {debt.monthlyPayment && (
-                      <span style={{ fontSize: '12px', color: '#8B8FA3' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                         {formatCurrency(debt.monthlyPayment)}/мес
                       </span>
                     )}
@@ -490,13 +489,13 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
                   <div style={{
                     fontSize: '18px',
                     fontWeight: '700',
-                    color: paidOff ? '#00D68F' : '#F1F2F4',
+                    color: paidOff ? 'var(--success)' : 'var(--text-primary)',
                     marginBottom: '4px',
-                    fontFamily: "'JetBrains Mono', monospace"
+                    fontFamily: 'var(--font-mono)'
                   }}>
                     {formatCurrency(actualCurrentBalance)}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#8B8FA3' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                     {t('table.of')} {formatCurrency(debt.totalAmount)}
                   </div>
                 </div>
@@ -520,7 +519,7 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
                       e.stopPropagation();
                       onDebtEdit(debt);
                     }}
-                    style={{ color: '#6C5CE7' }}
+                    style={{ color: 'var(--accent)' }}
                   />
                   <Dropdown
                     menu={{
@@ -557,7 +556,7 @@ const DebtListAntD: React.FC<DebtListAntDProps> = ({
             <div style={{
               textAlign: 'center',
               padding: '60px 20px',
-              color: '#5C5F6E'
+              color: 'var(--text-tertiary)'
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}><DollarOutlined /></div>
               <div style={{ fontSize: '16px', fontWeight: '500' }}>

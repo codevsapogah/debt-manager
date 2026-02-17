@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ConfigProvider, theme } from 'antd';
+import { SunOutlined, MoonOutlined } from '@ant-design/icons';
 import './App.css';
 import './i18n/config';
 import { useTranslation } from 'react-i18next';
@@ -55,7 +56,12 @@ function useFocusTrap(isOpen: boolean) {
   return ref;
 }
 
-function AppContent() {
+interface AppContentProps {
+  themeMode: 'dark' | 'light';
+  toggleTheme: () => void;
+}
+
+function AppContent({ themeMode, toggleTheme }: AppContentProps) {
   const { currentUser, logout } = useAuth();
   const { t } = useTranslation();
   const [debts, setDebts] = useState<Debt[]>([]);
@@ -275,6 +281,14 @@ function AppContent() {
           </div>
           
           <div className="user-info">
+            <button
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={themeMode === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              title={themeMode === 'dark' ? 'Light mode' : 'Dark mode'}
+            >
+              {themeMode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
+            </button>
             <LanguageSwitcher />
             {currentUser.photoURL && (
               <img 
@@ -416,23 +430,38 @@ function AppContent() {
 }
 
 function App() {
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>(
+    () => (localStorage.getItem('klaro-theme') as 'dark' | 'light') || 'dark'
+  );
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', themeMode);
+    localStorage.setItem('klaro-theme', themeMode);
+  }, [themeMode]);
+
+  const toggleTheme = useCallback(() => {
+    setThemeMode(prev => prev === 'dark' ? 'light' : 'dark');
+  }, []);
+
+  const isDark = themeMode === 'dark';
+
   return (
     <ConfigProvider
       theme={{
-        algorithm: theme.darkAlgorithm,
+        algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
         token: {
           colorPrimary: '#6C5CE7',
-          colorSuccess: '#00D68F',
-          colorWarning: '#FFAA00',
-          colorError: '#FF6B6B',
-          colorBgContainer: '#1A1D27',
-          colorBgElevated: '#22252F',
-          colorBgLayout: '#0F1117',
-          colorBorder: 'rgba(255, 255, 255, 0.06)',
-          colorBorderSecondary: 'rgba(255, 255, 255, 0.06)',
-          colorText: '#F1F2F4',
-          colorTextSecondary: '#8B8FA3',
-          colorTextTertiary: '#5C5F6E',
+          colorSuccess: isDark ? '#00D68F' : '#00B377',
+          colorWarning: isDark ? '#FFAA00' : '#E59500',
+          colorError: isDark ? '#FF6B6B' : '#E54D4D',
+          colorBgContainer: isDark ? '#1A1D27' : '#FFFFFF',
+          colorBgElevated: isDark ? '#22252F' : '#FFFFFF',
+          colorBgLayout: isDark ? '#0F1117' : '#F7F5F2',
+          colorBorder: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
+          colorBorderSecondary: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
+          colorText: isDark ? '#F1F2F4' : '#1A1A2E',
+          colorTextSecondary: isDark ? '#8B8FA3' : '#6E7191',
+          colorTextTertiary: isDark ? '#5C5F6E' : '#A0A3BD',
           borderRadius: 12,
           fontSize: 14,
           fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif",
@@ -440,7 +469,7 @@ function App() {
         components: {
           Table: {
             borderRadius: 16,
-            headerBg: '#1A1D27',
+            headerBg: isDark ? '#1A1D27' : '#F7F5F2',
           },
           Button: {
             borderRadius: 10,
@@ -453,13 +482,13 @@ function App() {
             borderRadiusSM: 6,
           },
           Progress: {
-            remainingColor: 'rgba(255, 255, 255, 0.08)',
+            remainingColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
           },
         },
       }}
     >
       <AuthProvider>
-        <AppContent />
+        <AppContent themeMode={themeMode} toggleTheme={toggleTheme} />
       </AuthProvider>
     </ConfigProvider>
   );

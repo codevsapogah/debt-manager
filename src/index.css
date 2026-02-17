@@ -5,7 +5,7 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 /* ========================================
-   DESIGN TOKENS
+   DESIGN TOKENS — Dark (default)
    ======================================== */
 :root {
   /* Backgrounds */
@@ -13,17 +13,22 @@
   --bg-surface: #1A1D27;
   --bg-surface-hover: #22252F;
   --bg-surface-glass: rgba(26, 29, 39, 0.8);
+  --bg-item: rgba(255, 255, 255, 0.02);
+  --bg-item-hover: rgba(255, 255, 255, 0.05);
+  --bg-item-paid: rgba(0, 214, 143, 0.06);
+  --bg-item-paid-hover: rgba(0, 214, 143, 0.1);
 
   /* Borders */
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-bright: rgba(255, 255, 255, 0.12);
+  --border-paid: rgba(0, 214, 143, 0.15);
 
   /* Text */
   --text-primary: #F1F2F4;
   --text-secondary: #8B8FA3;
   --text-tertiary: #5C5F6E;
 
-  /* Accent - Vibrant Violet */
+  /* Accent — Vibrant Violet */
   --accent: #6C5CE7;
   --accent-glow: rgba(108, 92, 231, 0.25);
   --accent-hover: #7C6CF7;
@@ -42,12 +47,54 @@
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 
+  /* Shadows */
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+
   /* Misc */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
   --glass-blur: blur(20px);
+}
+
+/* ========================================
+   DESIGN TOKENS — Light
+   Warm cream editorial palette
+   ======================================== */
+[data-theme="light"] {
+  --bg-primary: #F7F5F2;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #F0EDE8;
+  --bg-surface-glass: rgba(255, 255, 255, 0.88);
+  --bg-item: rgba(0, 0, 0, 0.02);
+  --bg-item-hover: rgba(0, 0, 0, 0.04);
+  --bg-item-paid: rgba(0, 214, 143, 0.06);
+  --bg-item-paid-hover: rgba(0, 214, 143, 0.1);
+
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-bright: rgba(0, 0, 0, 0.12);
+  --border-paid: rgba(0, 179, 119, 0.2);
+
+  --text-primary: #1A1A2E;
+  --text-secondary: #6E7191;
+  --text-tertiary: #A0A3BD;
+
+  --accent: #6C5CE7;
+  --accent-glow: rgba(108, 92, 231, 0.15);
+  --accent-hover: #5A4BD4;
+  --accent-subtle: rgba(108, 92, 231, 0.06);
+
+  --success: #00B377;
+  --success-bg: rgba(0, 179, 119, 0.08);
+  --warning: #E59500;
+  --warning-bg: rgba(229, 149, 0, 0.08);
+  --error: #E54D4D;
+  --error-bg: rgba(229, 77, 77, 0.06);
+
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 /* ========================================
