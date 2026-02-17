@@ -113,10 +113,10 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
   if (expenses.length === 0) {
     return (
       <div style={{
-        background: '#1A1D27',
+        background: 'var(--bg-surface)',
         borderRadius: '20px',
         padding: '60px 24px',
-        border: '1px solid rgba(255, 255, 255, 0.06)',
+        border: '1px solid var(--border-subtle)',
         textAlign: 'center'
       }}>
         <Empty
@@ -139,37 +139,37 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
       {/* Total Summary Card */}
       <div
         style={{
-          background: 'rgba(26, 29, 39, 0.8)',
-          backdropFilter: 'blur(12px)',
+          background: 'var(--bg-surface-glass)',
+          backdropFilter: 'var(--glass-blur)',
           borderRadius: '20px',
           padding: '24px',
-          color: '#F1F2F4',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
-          borderTop: '3px solid #FF6B6B',
+          color: 'var(--text-primary)',
+          border: '1px solid var(--border-subtle)',
+          borderTop: '3px solid var(--error)',
         }}
       >
-        <div style={{ fontSize: '14px', color: '#8B8FA3', marginBottom: '8px' }}>
+        <div style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
           {t('expense.totalMonthlyExpenses')}
         </div>
-        <div style={{ fontSize: '30px', fontWeight: 'bold', fontFamily: "'JetBrains Mono', monospace", color: '#FF6B6B' }}>
+        <div style={{ fontSize: '30px', fontWeight: 'bold', fontFamily: 'var(--font-mono)', color: 'var(--error)' }}>
           -{formatCurrency(getTotalMonthlyExpenses())}
         </div>
       </div>
 
       {/* Expenses List */}
       <div style={{
-        background: '#1A1D27',
+        background: 'var(--bg-surface)',
         borderRadius: '20px',
         padding: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.06)'
+        border: '1px solid var(--border-subtle)'
       }}>
         {/* List Header */}
         <div style={{
           marginBottom: '20px',
           paddingBottom: '16px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
+          borderBottom: '1px solid var(--border-subtle)'
         }}>
-          <span style={{ fontSize: '16px', fontWeight: '600', color: '#F1F2F4' }}>
+          <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>
             {t('expense.recurringExpenses')} ({expenses.length})
           </span>
         </div>
@@ -188,19 +188,19 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
                   alignItems: 'center',
                   gap: '16px',
                   padding: '16px',
-                  background: 'rgba(255, 255, 255, 0.02)',
+                  background: 'var(--bg-item)',
                   borderRadius: '16px',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  border: '1px solid var(--border-subtle)',
                   transition: 'all 0.2s',
                   cursor: 'pointer'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                  e.currentTarget.style.background = 'var(--bg-item-hover)';
                   e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                  e.currentTarget.style.background = 'var(--bg-item)';
                   e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
@@ -235,7 +235,7 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
                     <span style={{
                       fontSize: '15px',
                       fontWeight: '600',
-                      color: '#F1F2F4',
+                      color: 'var(--text-primary)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'
@@ -254,11 +254,11 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
                     <Tag color={getFrequencyColor(expense.frequency)} style={{ fontSize: '11px' }}>
                       {t(`expense.frequencies.${expense.frequency}`)}
                     </Tag>
-                    <span style={{ fontSize: '12px', color: '#8B8FA3' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                       {formatCurrency(expense.amount)}
                     </span>
                     {expense.frequency !== 'monthly' && (
-                      <span style={{ fontSize: '12px', color: '#5C5F6E' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
                         → {formatCurrency(monthlyAmount)}/мес
                       </span>
                     )}
@@ -270,13 +270,13 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
                   <div style={{
                     fontSize: '18px',
                     fontWeight: '700',
-                    color: '#FF6B6B',
+                    color: 'var(--error)',
                     marginBottom: '4px',
-                    fontFamily: "'JetBrains Mono', monospace"
+                    fontFamily: 'var(--font-mono)'
                   }}>
                     -{formatCurrency(monthlyAmount)}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#8B8FA3' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                     {t('expense.perMonth')}
                   </div>
                 </div>
@@ -291,7 +291,7 @@ const ExpenseListAntD: React.FC<ExpenseListAntDProps> = ({
                       e.stopPropagation();
                       onExpenseEdit && onExpenseEdit(expense);
                     }}
-                    style={{ color: '#6C5CE7' }}
+                    style={{ color: 'var(--accent)' }}
                   />
                   <Button
                     type="text"
