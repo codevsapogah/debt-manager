@@ -3,7 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { exportToCSV, exportToJSON } from '../utils/export';
-import { Sun, Moon, Globe, Download, LogOut, User } from 'lucide-react';
+import { formatCurrency } from '../utils/currency';
+import { IncomeSource, RecurringExpense } from '../types';
+import { deleteRecurringExpense } from '../utils/storage';
+import IncomeForm from '../components/IncomeForm';
+import IncomeList from '../components/IncomeList';
+import ExpenseForm from '../components/ExpenseForm';
+import { Sun, Moon, Globe, Download, LogOut, User, ChevronRight, ChevronDown, Trash2, Edit2 } from 'lucide-react';
 
 /* ─── helper sub-components ─── */
 
@@ -103,7 +109,13 @@ const PillGroup = ({
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const { currentUser, logout } = useAuth();
-  const { debts } = useData();
+  const { debts, incomes, expenses, refreshData } = useData();
+
+  /* income/expense management */
+  const [showIncomeManager, setShowIncomeManager] = useState(false);
+  const [showExpenseManager, setShowExpenseManager] = useState(false);
+  const [editingIncome, setEditingIncome] = useState<IncomeSource | null>(null);
+  const [editingExpense, setEditingExpense] = useState<RecurringExpense | null>(null);
 
   /* theme */
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>(
@@ -199,6 +211,111 @@ export default function SettingsPage() {
           ]}
         />
       </SettingRow>
+
+      {/* ── INCOME ── */}
+      <SectionTitle title={t('settings.manageIncome')} />
+
+      <SettingRow
+        label={t('settings.manageIncome')}
+        onClick={() => setShowIncomeManager(!showIncomeManager)}
+      >
+        {showIncomeManager
+          ? <ChevronDown size={18} color="var(--text-tertiary)" />
+          : <ChevronRight size={18} color="var(--text-tertiary)" />
+        }
+      </SettingRow>
+
+      {showIncomeManager && (
+        <div style={{ marginTop: 12 }}>
+          <IncomeForm
+            onIncomeAdded={refreshData}
+            editingIncome={editingIncome}
+            onEditComplete={() => { setEditingIncome(null); refreshData(); }}
+          />
+          <div style={{ marginTop: 16 }}>
+            <IncomeList
+              incomes={incomes}
+              onIncomeDeleted={refreshData}
+              onIncomeEdit={setEditingIncome}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── EXPENSES ── */}
+      <SectionTitle title={t('settings.manageExpenses')} />
+
+      <SettingRow
+        label={t('settings.manageExpenses')}
+        onClick={() => setShowExpenseManager(!showExpenseManager)}
+      >
+        {showExpenseManager
+          ? <ChevronDown size={18} color="var(--text-tertiary)" />
+          : <ChevronRight size={18} color="var(--text-tertiary)" />
+        }
+      </SettingRow>
+
+      {showExpenseManager && (
+        <div style={{ marginTop: 12 }}>
+          <ExpenseForm
+            onExpenseAdded={() => { refreshData(); setEditingExpense(null); }}
+            editingExpense={editingExpense}
+            onEditComplete={() => { setEditingExpense(null); refreshData(); }}
+          />
+          <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {expenses.map(exp => (
+              <div key={exp.id} style={{
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                padding: '12px', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-md)',
+              }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)' }}>{exp.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+                    {exp.frequency}{exp.category ? ` / ${exp.category}` : ''}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontWeight: 600, fontSize: 14, color: 'var(--text-primary)', fontFamily: 'var(--font-mono)' }}>
+                    {formatCurrency(exp.amount)}
+                  </span>
+                  <button
+                    onClick={() => setEditingExpense(exp)}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      padding: 4, color: 'var(--text-tertiary)', display: 'flex',
+                    }}
+                    title="Edit"
+                  >
+                    <Edit2 size={14} />
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (window.confirm(t('expenses.deleteConfirm'))) {
+                        await deleteRecurringExpense(exp.id);
+                        refreshData();
+                      }
+                    }}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      padding: 4, color: 'var(--text-tertiary)', display: 'flex',
+                    }}
+                    title="Delete"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {expenses.length === 0 && (
+              <div style={{
+                padding: 24, textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 14,
+              }}>
+                {t('expenses.noExpenses')}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── DATA ── */}
       <SectionTitle title={t('settings.data')} />
