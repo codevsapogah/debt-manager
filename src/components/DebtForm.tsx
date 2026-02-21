@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { Debt } from '../types';
 import { addDebt, updateDebt } from '../utils/storage';
@@ -11,6 +12,7 @@ interface DebtFormProps {
 }
 
 const DebtForm: React.FC<DebtFormProps> = ({ onDebtAdded, editingDebt, onEditComplete }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: '',
     totalAmount: '',
@@ -20,7 +22,10 @@ const DebtForm: React.FC<DebtFormProps> = ({ onDebtAdded, editingDebt, onEditCom
     monthlyPayment: '',
     duration: '',
     calculationMode: 'manual' as 'manual' | 'calculate-rate' | 'calculate-payment',
-    includeInTotal: true
+    includeInTotal: true,
+    autoLog: false,
+    autoLogDay: '1',
+    autoLogAmount: '',
   });
 
   const [calculationResult, setCalculationResult] = useState<string | null>(null);
@@ -37,7 +42,10 @@ const DebtForm: React.FC<DebtFormProps> = ({ onDebtAdded, editingDebt, onEditCom
         monthlyPayment: editingDebt.monthlyPayment?.toString() || '',
         duration: editingDebt.duration?.toString() || '',
         calculationMode: 'manual',
-        includeInTotal: editingDebt.includeInTotal !== false
+        includeInTotal: editingDebt.includeInTotal !== false,
+        autoLog: editingDebt.autoLog || false,
+        autoLogDay: editingDebt.autoLogDay?.toString() || '1',
+        autoLogAmount: editingDebt.autoLogAmount?.toString() || '',
       });
     } else {
       // Reset form when not editing
@@ -50,7 +58,10 @@ const DebtForm: React.FC<DebtFormProps> = ({ onDebtAdded, editingDebt, onEditCom
         monthlyPayment: '',
         duration: '',
         calculationMode: 'manual',
-        includeInTotal: true
+        includeInTotal: true,
+        autoLog: false,
+        autoLogDay: '1',
+        autoLogAmount: '',
       });
     }
   }, [editingDebt]);
@@ -97,6 +108,9 @@ const DebtForm: React.FC<DebtFormProps> = ({ onDebtAdded, editingDebt, onEditCom
         monthlyPayment: formData.monthlyPayment ? parseFloat(formData.monthlyPayment) : undefined,
         duration: formData.duration ? parseInt(formData.duration) : undefined,
         includeInTotal: formData.includeInTotal,
+        autoLog: formData.autoLog,
+        autoLogDay: formData.autoLog ? parseInt(formData.autoLogDay) : undefined,
+        autoLogAmount: formData.autoLog && formData.autoLogAmount ? parseFloat(formData.autoLogAmount) : undefined,
       };
 
         await updateDebt(editingDebt.id, updatedDebt);
@@ -113,6 +127,9 @@ const DebtForm: React.FC<DebtFormProps> = ({ onDebtAdded, editingDebt, onEditCom
         monthlyPayment: formData.monthlyPayment ? parseFloat(formData.monthlyPayment) : undefined,
         duration: formData.duration ? parseInt(formData.duration) : undefined,
         includeInTotal: formData.includeInTotal,
+        autoLog: formData.autoLog,
+        autoLogDay: formData.autoLog ? parseInt(formData.autoLogDay) : undefined,
+        autoLogAmount: formData.autoLog && formData.autoLogAmount ? parseFloat(formData.autoLogAmount) : undefined,
       };
 
         await addDebt(debt);
@@ -269,6 +286,54 @@ const DebtForm: React.FC<DebtFormProps> = ({ onDebtAdded, editingDebt, onEditCom
             />
             Include in total calculations
           </label>
+        </div>
+
+        {/* Auto-log section */}
+        <div style={{ borderTop: '1px solid var(--border-color, #e5e7eb)', marginTop: '16px', paddingTop: '16px' }}>
+          <div className="form-group">
+            <label>
+              <input
+                type="checkbox"
+                name="autoLog"
+                checked={formData.autoLog}
+                onChange={handleInputChange}
+                style={{ marginRight: '8px' }}
+              />
+              {t('autoLog.enable')}
+            </label>
+          </div>
+
+          {formData.autoLog && (
+            <>
+              <div className="form-group">
+                <label htmlFor="autoLogDay">{t('autoLog.paymentDay')}:</label>
+                <input
+                  type="number"
+                  id="autoLogDay"
+                  name="autoLogDay"
+                  value={formData.autoLogDay}
+                  onChange={handleInputChange}
+                  min="1"
+                  max="28"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="autoLogAmount">{t('autoLog.amount')}:</label>
+                <input
+                  type="number"
+                  id="autoLogAmount"
+                  name="autoLogAmount"
+                  value={formData.autoLogAmount || formData.monthlyPayment}
+                  onChange={handleInputChange}
+                  step="0.01"
+                  min="0"
+                  placeholder={formData.monthlyPayment || '0'}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <button type="submit">{editingDebt ? 'Update Debt' : 'Add Debt'}</button>
