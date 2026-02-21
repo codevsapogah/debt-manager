@@ -7,7 +7,11 @@ export default {
     "dashboard": "Dashboard",
     "manageDebts": "Manage Loans",
     "manageIncome": "Manage Income",
-    "manageExpenses": "Manage Expenses"
+    "manageExpenses": "Manage Expenses",
+    "home": "Home",
+    "debts": "Debts",
+    "activity": "Activity",
+    "settings": "Settings"
   },
   "auth": {
     "welcome": "Welcome!",
