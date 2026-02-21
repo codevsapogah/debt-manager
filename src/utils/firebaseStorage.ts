@@ -7,10 +7,11 @@ import {
   updateDoc,
   query,
   orderBy,
-  writeBatch
+  writeBatch,
+  where
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { AppState, Debt, IncomeSource, RecurringExpense } from '../types';
+import { AppState, Debt, IncomeSource, RecurringExpense, Transaction } from '../types';
 import { loadFromStorage } from './storage';
 
 // Get user's Firestore collections
@@ -22,6 +23,9 @@ const getUserIncomesCollection = (userId: string) =>
 
 const getUserExpensesCollection = (userId: string) =>
   collection(db, 'users', userId, 'expenses');
+
+const getUserTransactionsCollection = (userId: string) =>
+  collection(db, 'users', userId, 'transactions');
 
 // Load data from Firestore
 export const loadFromFirestore = async (userId: string): Promise<AppState> => {
@@ -249,6 +253,76 @@ export const deleteExpenseFromFirestore = async (userId: string, expenseId: stri
     await deleteDoc(expenseRef);
   } catch (error) {
     console.error('Error deleting expense from Firestore:', error);
+    throw error;
+  }
+};
+
+// Individual CRUD operations for transactions
+export const loadTransactionsFromFirestore = async (
+  userId: string,
+  debtId?: string
+): Promise<Transaction[]> => {
+  try {
+    let q;
+    if (debtId) {
+      q = query(
+        getUserTransactionsCollection(userId),
+        where('debtId', '==', debtId),
+        orderBy('date', 'desc')
+      );
+    } else {
+      q = query(
+        getUserTransactionsCollection(userId),
+        orderBy('date', 'desc')
+      );
+    }
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      ...doc.data(),
+      id: doc.id,
+      date: doc.data().date.toDate(),
+    })) as Transaction[];
+  } catch (error) {
+    console.error('Error loading transactions:', error);
+    return [];
+  }
+};
+
+export const addTransactionToFirestore = async (
+  userId: string,
+  transaction: Transaction
+): Promise<void> => {
+  try {
+    const txRef = doc(getUserTransactionsCollection(userId), transaction.id);
+    await setDoc(txRef, transaction);
+  } catch (error) {
+    console.error('Error adding transaction:', error);
+    throw error;
+  }
+};
+
+export const deleteTransactionFromFirestore = async (
+  userId: string,
+  transactionId: string
+): Promise<void> => {
+  try {
+    const txRef = doc(getUserTransactionsCollection(userId), transactionId);
+    await deleteDoc(txRef);
+  } catch (error) {
+    console.error('Error deleting transaction:', error);
+    throw error;
+  }
+};
+
+export const updateTransactionInFirestore = async (
+  userId: string,
+  transaction: Transaction
+): Promise<void> => {
+  try {
+    const txRef = doc(getUserTransactionsCollection(userId), transaction.id);
+    await updateDoc(txRef, transaction as any);
+  } catch (error) {
+    console.error('Error updating transaction:', error);
     throw error;
   }
 };
