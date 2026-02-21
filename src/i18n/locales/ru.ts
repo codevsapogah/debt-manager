@@ -227,5 +227,88 @@ export default {
   "validation": {
     "required": "Это поле обязательно",
     "amountRequired": "Сумма должна быть больше 0"
+  },
+  "home": {
+    "totalDebt": "Общий остаток долга",
+    "acrossDebts": "по {{count}} активным долгам",
+    "logPayment": "Записать платёж",
+    "addDebt": "Добавить долг",
+    "viewProjections": "Прогнозы",
+    "cashFlow": "Денежный поток",
+    "monthlyIncome": "Месячный доход",
+    "monthlyExpenses": "Месячные расходы",
+    "netCashFlow": "Чистый денежный поток",
+    "manage": "Управлять",
+    "debtFreeTimeline": "Путь к свободе от долгов",
+    "debtFreeBy": "Без долгов к {{date}}",
+    "nextPayments": "Ближайшие платежи",
+    "dueIn": "Через {{days}} дней",
+    "noDebts": "Долгов пока нет. Добавьте первый долг для начала.",
+    "monthlyProgress": "Прогресс за месяц"
+  },
+  "activity": {
+    "title": "Активность",
+    "thisMonth": "Этот месяц",
+    "last30Days": "Последние 30 дней",
+    "allTime": "За всё время",
+    "allDebts": "Все долги",
+    "noTransactions": "Транзакций пока нет. Запишите первый платёж для начала отслеживания.",
+    "today": "Сегодня",
+    "yesterday": "Вчера"
+  },
+  "debtDetail": {
+    "originalAmount": "Начальная сумма",
+    "interestRate": "Процент",
+    "monthlyPayment": "Ежемесячно",
+    "payoffProjection": "Прогноз погашения",
+    "transactionHistory": "История платежей",
+    "logPayment": "Записать платёж",
+    "editDebt": "Редактировать",
+    "markPaid": "Отметить как погашенный",
+    "paidOff": "Погашен",
+    "noTransactions": "Платежей пока нет.",
+    "paidPercentage": "{{percent}}% оплачено",
+    "back": "Назад"
+  },
+  "logPayment": {
+    "title": "Записать платёж",
+    "amount": "Сумма",
+    "date": "Дата",
+    "note": "Заметка (необязательно)",
+    "submit": "Записать платёж",
+    "selectDebt": "Выберите долг"
+  },
+  "settings": {
+    "appearance": "Внешний вид",
+    "theme": "Тема",
+    "dark": "Тёмная",
+    "light": "Светлая",
+    "language": "Язык",
+    "currency": "Валюта",
+    "data": "Данные",
+    "exportData": "Экспорт данных",
+    "exportCSV": "Экспорт CSV",
+    "exportJSON": "Экспорт JSON",
+    "account": "Аккаунт",
+    "signOut": "Выйти",
+    "about": "О приложении",
+    "version": "Версия",
+    "manageIncome": "Управление доходами",
+    "manageExpenses": "Управление расходами"
+  },
+  "autoLog": {
+    "enable": "Авто-запись ежемесячных платежей",
+    "paymentDay": "День платежа в месяце",
+    "amount": "Сумма авто-записи"
+  },
+  "debtsPage": {
+    "title": "Мои долги",
+    "addDebt": "Добавить",
+    "all": "Все",
+    "active": "Активные",
+    "paidOff": "Погашенные",
+    "noDebts": "Долгов пока нет",
+    "noDebtsDescription": "Добавьте первый долг для отслеживания финансового прогресса.",
+    "perMonth": "/мес"
   }
 }

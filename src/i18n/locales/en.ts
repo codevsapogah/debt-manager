@@ -206,5 +206,88 @@ export default {
   "validation": {
     "required": "This field is required",
     "amountRequired": "Amount must be greater than 0"
+  },
+  "home": {
+    "totalDebt": "Total Remaining Debt",
+    "acrossDebts": "across {{count}} active debts",
+    "logPayment": "Log Payment",
+    "addDebt": "Add Debt",
+    "viewProjections": "Projections",
+    "cashFlow": "Cash Flow",
+    "monthlyIncome": "Monthly Income",
+    "monthlyExpenses": "Monthly Expenses",
+    "netCashFlow": "Net Cash Flow",
+    "manage": "Manage",
+    "debtFreeTimeline": "Debt-Free Timeline",
+    "debtFreeBy": "Debt-free by {{date}}",
+    "nextPayments": "Next Payments Due",
+    "dueIn": "Due in {{days}} days",
+    "noDebts": "No debts yet. Add your first debt to get started.",
+    "monthlyProgress": "Monthly Progress"
+  },
+  "activity": {
+    "title": "Activity",
+    "thisMonth": "This Month",
+    "last30Days": "Last 30 Days",
+    "allTime": "All Time",
+    "allDebts": "All Debts",
+    "noTransactions": "No transactions yet. Log your first payment to start tracking.",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "debtDetail": {
+    "originalAmount": "Original",
+    "interestRate": "Interest",
+    "monthlyPayment": "Monthly",
+    "payoffProjection": "Payoff Projection",
+    "transactionHistory": "Transaction History",
+    "logPayment": "Log Payment",
+    "editDebt": "Edit Debt",
+    "markPaid": "Mark as Paid Off",
+    "paidOff": "Paid Off",
+    "noTransactions": "No payments logged yet.",
+    "paidPercentage": "{{percent}}% paid",
+    "back": "Back"
+  },
+  "logPayment": {
+    "title": "Log Payment",
+    "amount": "Amount",
+    "date": "Date",
+    "note": "Note (optional)",
+    "submit": "Log Payment",
+    "selectDebt": "Select Debt"
+  },
+  "settings": {
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "language": "Language",
+    "currency": "Currency",
+    "data": "Data",
+    "exportData": "Export Data",
+    "exportCSV": "Export CSV",
+    "exportJSON": "Export JSON",
+    "account": "Account",
+    "signOut": "Sign Out",
+    "about": "About",
+    "version": "Version",
+    "manageIncome": "Manage Income",
+    "manageExpenses": "Manage Expenses"
+  },
+  "autoLog": {
+    "enable": "Auto-log monthly payments",
+    "paymentDay": "Payment day of month",
+    "amount": "Auto-log amount"
+  },
+  "debtsPage": {
+    "title": "My Debts",
+    "addDebt": "Add",
+    "all": "All",
+    "active": "Active",
+    "paidOff": "Paid Off",
+    "noDebts": "No debts yet",
+    "noDebtsDescription": "Add your first debt to start tracking your financial progress.",
+    "perMonth": "/mo"
   }
 }
