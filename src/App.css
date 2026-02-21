@@ -46,7 +46,7 @@
 }
 
 body {
-  font-family: var(--font-body);
+  font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-primary);
@@ -123,11 +123,11 @@ body,
 }
 
 .app-header {
-  background: rgba(15, 17, 23, 0.8);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: rgba(10, 22, 40, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-subtle);
-  box-shadow: 0 1px 0 var(--border-subtle), 0 0 40px rgba(108, 92, 231, 0.05);
+  box-shadow: 0 1px 0 var(--border-subtle), 0 0 40px rgba(37, 99, 235, 0.05);
   padding: 1rem 2rem;
   position: sticky;
   top: 0;
@@ -170,7 +170,7 @@ body,
 .nav-tabs button.active {
   background: var(--accent);
   color: white;
-  box-shadow: 0 0 20px var(--accent-glow), 0 4px 12px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 0 20px var(--accent-glow), 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .app-main {
@@ -280,7 +280,7 @@ body,
 }
 
 .dashboard-overview {
-  background: var(--bg-surface-glass);
+  background: var(--bg-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
@@ -496,7 +496,7 @@ body,
   margin-top: 0.75rem;
   padding: 0.75rem 1rem;
   background: var(--accent-subtle);
-  border: 1px solid rgba(108, 92, 231, 0.3);
+  border: 1px solid rgba(37, 99, 235, 0.3);
   border-radius: var(--radius-sm);
   color: var(--accent-hover);
   font-weight: 600;
@@ -867,7 +867,7 @@ body,
    CHART STYLES
    ======================================== */
 .debt-charts {
-  background: var(--bg-surface-glass);
+  background: var(--bg-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
@@ -975,7 +975,7 @@ body,
 
 /* Strategy Info Section */
 .strategy-info-section {
-  background: var(--bg-surface-glass);
+  background: var(--bg-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--accent-glow);
@@ -1206,7 +1206,7 @@ body,
 /* Extra Payment Impact */
 .extra-payment-impact {
   background: var(--success-bg);
-  border: 1px solid rgba(0, 214, 143, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   border-radius: var(--radius-md);
   padding: 1.5rem;
   margin: 1.5rem 0;
@@ -1331,16 +1331,16 @@ body,
   justify-content: center;
   background: var(--bg-primary);
   background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(108, 92, 231, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(108, 92, 231, 0.08) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 80%, rgba(0, 214, 143, 0.06) 0%, transparent 40%);
+    radial-gradient(ellipse at 20% 50%, rgba(37, 99, 235, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(37, 99, 235, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 40%);
   padding: 2rem;
 }
 
 .login-card {
-  background: var(--bg-surface-glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-bright);
   border-radius: var(--radius-xl);
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
@@ -1350,7 +1350,7 @@ body,
 }
 
 .login-header {
-  background: linear-gradient(135deg, var(--accent) 0%, #4A3BC2 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, #1D4ED8 100%);
   color: white;
   padding: 2.5rem 2rem;
   text-align: center;
@@ -1405,7 +1405,7 @@ body,
   padding: 1rem;
   border-radius: var(--radius-sm);
   margin-bottom: 1.5rem;
-  border: 1px solid rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   font-weight: 500;
   font-size: 0.9rem;
 }
@@ -1612,7 +1612,7 @@ body,
   margin-top: 0.5rem;
   padding: 0.5rem 0.75rem;
   background: var(--error-bg);
-  border: 1px solid rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 6px;
   color: var(--error);
   font-size: 0.875rem;
@@ -1751,7 +1751,7 @@ body,
 
 .income-card:hover {
   border-color: var(--border-bright);
-  box-shadow: 0 0 30px rgba(108, 92, 231, 0.08);
+  box-shadow: 0 0 30px rgba(37, 99, 235, 0.08);
   transform: translateY(-2px);
 }
 
@@ -2165,7 +2165,7 @@ body,
 
 .expense-summary-card {
   background: var(--bg-surface);
-  border: 1px solid rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: var(--radius-md);
   padding: 1.5rem;
   text-align: center;
@@ -2378,7 +2378,7 @@ body,
   gap: 6px;
   padding: 4px 12px;
   background: var(--success-bg);
-  border: 1px solid rgba(0, 214, 143, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   color: var(--success);
   border-radius: 100px;
   font-size: 0.75rem;
@@ -2456,8 +2456,8 @@ body,
 }
 
 .btn-delete:hover {
-  background: #ff5252;
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  background: #DC2626;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 /* ========================================
@@ -2507,9 +2507,9 @@ body,
   bottom: 30px;
   right: 30px;
   padding: 16px 24px;
-  background: var(--bg-surface-glass);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--accent-glow);
   color: var(--text-primary);
   border-radius: var(--radius-md);
@@ -2650,7 +2650,7 @@ body,
   background: var(--success-bg);
   border-radius: var(--radius-sm);
   text-align: center;
-  border: 1px solid rgba(0, 214, 143, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 /* ========================================
@@ -2804,9 +2804,9 @@ button:disabled:hover {
 [data-theme="light"] .login-container {
   background: var(--bg-primary);
   background-image:
-    radial-gradient(ellipse at 20% 50%, rgba(108, 92, 231, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(108, 92, 231, 0.05) 0%, transparent 40%),
-    radial-gradient(ellipse at 50% 80%, rgba(0, 179, 119, 0.04) 0%, transparent 40%);
+    radial-gradient(ellipse at 20% 50%, rgba(37, 99, 235, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 80%, rgba(5, 150, 105, 0.04) 0%, transparent 40%);
 }
 
 [data-theme="light"] .login-card {
@@ -2841,7 +2841,7 @@ button:disabled:hover {
 }
 
 [data-theme="light"] .celebration-toast {
-  background: var(--bg-surface-glass);
+  background: var(--bg-surface);
   box-shadow: 0 0 30px var(--accent-glow), var(--shadow-lg);
 }
 
