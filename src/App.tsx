@@ -1,25 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider, theme } from 'antd';
-import { SunOutlined, MoonOutlined } from '@ant-design/icons';
 import './App.css';
 import './i18n/config';
-import { useTranslation } from 'react-i18next';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { DataProvider } from './contexts/DataContext';
 import Login from './components/Login';
-import DebtForm from './components/DebtForm';
-import DebtList from './components/DebtList';
-import DebtListAntD from './components/DebtListAntD';
-import DebtChart from './components/DebtChart';
-import IncomeForm from './components/IncomeForm';
-import IncomeList from './components/IncomeList';
-import ExpenseForm from './components/ExpenseForm';
-import ExpenseList from './components/ExpenseList';
-import ExpenseListAntD from './components/ExpenseListAntD';
-import LanguageSwitcher from './components/LanguageSwitcher';
-import { loadFromStorage, bulkDeleteDebts, bulkUpdateDebts } from './utils/storage';
-import { loadFromFirestore, migrateLocalStorageToFirestore, bulkDeleteDebtsFromFirestore, bulkUpdateDebtsInFirestore } from './utils/firebaseStorage';
-import { Debt, IncomeSource, RecurringExpense } from './types';
+import AppLayout from './components/layout/AppLayout';
 import GooeyCircleLoader from './components/GooeyCircleLoader';
+import { useTranslation } from 'react-i18next';
 
 // Focus trap hook for modals
 function useFocusTrap(isOpen: boolean) {
@@ -56,376 +45,39 @@ function useFocusTrap(isOpen: boolean) {
   return ref;
 }
 
-interface AppContentProps {
-  themeMode: 'dark' | 'light';
-  toggleTheme: () => void;
-}
-
-function AppContent({ themeMode, toggleTheme }: AppContentProps) {
-  const { currentUser, logout } = useAuth();
+function AppRoutes() {
+  const { currentUser, loading: authLoading } = useAuth();
   const { t } = useTranslation();
-  const [debts, setDebts] = useState<Debt[]>([]);
-  const [incomes, setIncomes] = useState<IncomeSource[]>([]);
-  const [expenses, setExpenses] = useState<RecurringExpense[]>([]);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'income' | 'expenses'>('dashboard');
-  const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
-  const [showDebtForm, setShowDebtForm] = useState<boolean>(false);
-  const [editingIncome, setEditingIncome] = useState<IncomeSource | null>(null);
-  const [editingExpense, setEditingExpense] = useState<RecurringExpense | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  const loadData = async () => {
-    try {
-      const localData = loadFromStorage();
-      setDebts(localData.debts);
-      setIncomes(localData.incomeSources);
-      setExpenses(localData.recurringExpenses || []);
-
-      if (currentUser) {
-        try {
-          const data = await loadFromFirestore(currentUser.uid);
-          setDebts(data.debts);
-          setIncomes(data.incomeSources);
-
-          const firestoreHasExpenses = data.recurringExpenses && data.recurringExpenses.length > 0;
-          const localHasExpenses = localData.recurringExpenses && localData.recurringExpenses.length > 0;
-
-          if (firestoreHasExpenses) {
-            setExpenses(data.recurringExpenses || []);
-          } else if (localHasExpenses) {
-            try {
-              const { addExpenseToFirestore } = await import('./utils/firebaseStorage');
-              for (const expense of localData.recurringExpenses || []) {
-                await addExpenseToFirestore(currentUser.uid, expense);
-              }
-              console.log('Synced localStorage expenses to Firestore');
-            } catch (error) {
-              console.error('Failed to sync expenses to Firestore:', error);
-            }
-          }
-        } catch (error) {
-          console.error('Error loading from Firestore:', error);
-          // Keep localStorage data on error
-        }
-      }
-    } catch (error) {
-      console.error('Error loading data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const initializeData = async () => {
-      if (currentUser) {
-        try {
-          // Try to migrate localStorage data to Firestore on first login
-          const migrated = await migrateLocalStorageToFirestore(currentUser.uid);
-          if (migrated) {
-            console.log('Successfully migrated local data to cloud!');
-          }
-        } catch (error) {
-          console.error('Migration error:', error);
-        }
-      }
-      await loadData();
-    };
-
-    initializeData();
-  }, [currentUser]);
-
-  const handleDataUpdate = () => {
-    loadData();
-  };
-
-  // Optimistic update handlers
-  const handleOptimisticDebtDelete = (ids: string[]) => {
-    setDebts(prev => prev.filter(debt => !ids.includes(debt.id)));
-  };
-
-  const handleOptimisticDebtUpdate = (ids: string[], updates: Partial<Debt>) => {
-    setDebts(prev => prev.map(debt =>
-      ids.includes(debt.id) ? { ...debt, ...updates } : debt
-    ));
-  };
-
-  // Async sync to storage/firebase in background
-  const syncDebtChanges = async (action: 'delete' | 'update', ids: string[], updates?: Partial<Debt>) => {
-    try {
-      if (action === 'delete') {
-        bulkDeleteDebts(ids);
-        if (currentUser) {
-          await bulkDeleteDebtsFromFirestore(currentUser.uid, ids);
-        }
-      } else if (action === 'update' && updates) {
-        bulkUpdateDebts(ids, updates);
-        if (currentUser) {
-          await bulkUpdateDebtsInFirestore(currentUser.uid, ids, updates);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to sync changes:', error);
-      // On error, reload from source of truth
-      loadData();
-    }
-  };
-
-  const handleDebtEdit = (debt: Debt) => {
-    setEditingDebt(debt);
-    setShowDebtForm(true);
-  };
-
-  const handleEditComplete = () => {
-    setEditingDebt(null);
-    setShowDebtForm(false);
-    loadData();
-  };
-
-  const handleAddDebt = () => {
-    setEditingDebt(null);
-    setShowDebtForm(true);
-  };
-
-  const handleFormClose = () => {
-    setEditingDebt(null);
-    setShowDebtForm(false);
-  };
-
-  const handleIncomeEdit = (income: IncomeSource) => {
-    setEditingIncome(income);
-  };
-
-  const handleIncomeEditComplete = () => {
-    setEditingIncome(null);
-    loadData();
-  };
-
-  const handleExpenseEdit = (expense: RecurringExpense) => {
-    setEditingExpense(expense);
-  };
-
-  const handleExpenseEditComplete = () => {
-    setEditingExpense(null);
-    loadData();
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Failed to log out:', error);
-    }
-  };
-
-  const debtModalRef = useFocusTrap(showDebtForm);
-  const expenseModalRef = useFocusTrap(!!editingExpense);
-
-  // Close modals on Escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        if (showDebtForm) handleFormClose();
-        if (editingExpense) handleExpenseEditComplete();
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [showDebtForm, editingExpense]);
-
-  // Show login screen if not authenticated
-  if (!currentUser) {
-    return <Login />;
-  }
-
-  // Show loading while data is being loaded
-  if (loading) {
+  if (authLoading) {
     return (
-      <div className="app">
-        <div className="loading-container">
-          <GooeyCircleLoader loading={true} size={100} colors={['#6C5CE7', '#7C6CF7', '#6C5CE7']} />
-          <div className="loading-text" style={{ marginTop: '20px' }}>
-            {t('chart.loadingData')}
-          </div>
-        </div>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        backgroundColor: 'var(--bg-primary)',
+      }}>
+        <GooeyCircleLoader loading={true} size={100} colors={['#2563EB', '#3B82F6', '#2563EB']} />
       </div>
     );
   }
 
+  if (!currentUser) return <Login />;
+
   return (
-    <div className="app">
-      <header className="app-header">
-        <div className="app-header-with-user">
-          <div></div>
-          <div>
-            <h1>{t('app.title')}</h1>
-            <nav className="nav-tabs">
-              <button
-                className={activeTab === 'dashboard' ? 'active' : ''}
-                onClick={() => setActiveTab('dashboard')}
-              >
-                {t('navigation.dashboard')}
-              </button>
-              <button
-                className={activeTab === 'income' ? 'active' : ''}
-                onClick={() => setActiveTab('income')}
-              >
-                {t('navigation.manageIncome')}
-              </button>
-              <button
-                className={activeTab === 'expenses' ? 'active' : ''}
-                onClick={() => setActiveTab('expenses')}
-              >
-                {t('navigation.manageExpenses')}
-              </button>
-            </nav>
-          </div>
-          
-          <div className="user-info">
-            <button
-              className="theme-toggle"
-              onClick={toggleTheme}
-              aria-label={themeMode === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-              title={themeMode === 'dark' ? 'Light mode' : 'Dark mode'}
-            >
-              {themeMode === 'dark' ? <SunOutlined /> : <MoonOutlined />}
-            </button>
-            <LanguageSwitcher />
-            {currentUser.photoURL && (
-              <img 
-                src={currentUser.photoURL} 
-                alt="Profile" 
-                className="user-avatar"
-              />
-            )}
-            <span className="user-name">
-              {currentUser.displayName || currentUser.email}
-            </span>
-            <button 
-              className="logout-btn"
-              onClick={handleLogout}
-            >
-              {t('auth.signOut')}
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="app-main">
-        {activeTab === 'dashboard' && (
-          <div className="dashboard">
-            <DebtChart debts={debts} incomes={incomes} expenses={expenses} />
-            <div className="dashboard-overview">
-              <DebtListAntD
-                debts={debts}
-                onOptimisticDelete={handleOptimisticDebtDelete}
-                onOptimisticUpdate={handleOptimisticDebtUpdate}
-                onSync={syncDebtChanges}
-                onDebtEdit={handleDebtEdit}
-              />
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'income' && (
-          <div className="income-section">
-            <div className="section-grid">
-              <div className="form-section">
-                <IncomeForm
-                  onIncomeAdded={handleDataUpdate}
-                  editingIncome={editingIncome}
-                  onEditComplete={handleIncomeEditComplete}
-                />
-              </div>
-              <div className="list-section">
-                <IncomeList
-                  incomes={incomes}
-                  onIncomeDeleted={handleDataUpdate}
-                  onIncomeEdit={handleIncomeEdit}
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'expenses' && (
-          <div className="expenses-unified-section">
-            <div className="expenses-header">
-              <button className="add-expense-btn" onClick={handleAddDebt}>
-                + {t('debt.addNewDebt')}
-              </button>
-              <button className="add-expense-btn" onClick={() => setEditingExpense({} as RecurringExpense)}>
-                + {t('expense.addExpense')}
-              </button>
-            </div>
-
-            <div className="expenses-content">
-              <div className="loans-section">
-                <h3>{t('debt.debts')}</h3>
-                <DebtListAntD
-                  debts={debts}
-                  onOptimisticDelete={handleOptimisticDebtDelete}
-                  onOptimisticUpdate={handleOptimisticDebtUpdate}
-                  onSync={syncDebtChanges}
-                  onDebtEdit={handleDebtEdit}
-                />
-              </div>
-
-              <div className="recurring-expenses-section">
-                <ExpenseListAntD
-                  expenses={expenses}
-                  onExpenseDeleted={handleDataUpdate}
-                  onExpenseEdit={handleExpenseEdit}
-                />
-              </div>
-            </div>
-
-            {/* Expense Form Modal */}
-            {editingExpense && (
-              <div className="modal-overlay" onClick={handleExpenseEditComplete}>
-                <div className="modal-content" ref={expenseModalRef} role="dialog" aria-modal="true" aria-label={editingExpense.id ? t('expense.editExpense') : t('expense.addExpense')} onClick={(e) => e.stopPropagation()}>
-                  <div className="modal-header">
-                    <h2>{editingExpense.id ? t('expense.editExpense') : t('expense.addExpense')}</h2>
-                    <button className="modal-close" onClick={handleExpenseEditComplete}>{t('common.close')}</button>
-                  </div>
-                  <div className="modal-body">
-                    <ExpenseForm
-                      onExpenseAdded={() => {
-                        handleDataUpdate();
-                        handleExpenseEditComplete();
-                      }}
-                      editingExpense={editingExpense.id ? editingExpense : null}
-                      onEditComplete={handleExpenseEditComplete}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      {/* Debt Form Modal */}
-      {showDebtForm && (
-        <div className="modal-overlay" onClick={handleFormClose}>
-          <div className="modal-content" ref={debtModalRef} role="dialog" aria-modal="true" aria-label={editingDebt ? t('debt.editDebt') : t('debt.addDebt')} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{editingDebt ? t('debt.editDebt') : t('debt.addDebt')}</h2>
-              <button className="modal-close" onClick={handleFormClose}>{t('common.close')}</button>
-            </div>
-            <div className="modal-body">
-              <DebtForm 
-                onDebtAdded={() => {
-                  handleDataUpdate();
-                  handleFormClose();
-                }} 
-                editingDebt={editingDebt}
-                onEditComplete={handleEditComplete}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    <DataProvider>
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Home - Coming Soon</div>} />
+          <Route path="/debts" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Debts - Coming Soon</div>} />
+          <Route path="/debts/:id" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Debt Detail - Coming Soon</div>} />
+          <Route path="/activity" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Activity - Coming Soon</div>} />
+          <Route path="/settings" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Settings - Coming Soon</div>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </DataProvider>
   );
 }
 
@@ -450,45 +102,33 @@ function App() {
       theme={{
         algorithm: isDark ? theme.darkAlgorithm : theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#6C5CE7',
-          colorSuccess: isDark ? '#00D68F' : '#00B377',
-          colorWarning: isDark ? '#FFAA00' : '#E59500',
-          colorError: isDark ? '#FF6B6B' : '#E54D4D',
-          colorBgContainer: isDark ? '#1A1D27' : '#FFFFFF',
-          colorBgElevated: isDark ? '#22252F' : '#FFFFFF',
-          colorBgLayout: isDark ? '#0F1117' : '#F7F5F2',
+          colorPrimary: '#2563EB',
+          colorSuccess: isDark ? '#10B981' : '#059669',
+          colorWarning: isDark ? '#F59E0B' : '#D97706',
+          colorError: isDark ? '#EF4444' : '#DC2626',
+          colorBgContainer: isDark ? '#111D31' : '#FFFFFF',
+          colorBgElevated: isDark ? '#162540' : '#FFFFFF',
+          colorBgLayout: isDark ? '#0A1628' : '#F8FAFC',
           colorBorder: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
           colorBorderSecondary: isDark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.06)',
-          colorText: isDark ? '#F1F2F4' : '#1A1A2E',
-          colorTextSecondary: isDark ? '#8B8FA3' : '#6E7191',
-          colorTextTertiary: isDark ? '#5C5F6E' : '#A0A3BD',
+          colorText: isDark ? '#F1F5F9' : '#0F172A',
+          colorTextSecondary: isDark ? '#94A3B8' : '#475569',
+          colorTextTertiary: isDark ? '#64748B' : '#94A3B8',
           borderRadius: 12,
           fontSize: 14,
-          fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
         },
         components: {
-          Table: {
-            borderRadius: 16,
-            headerBg: isDark ? '#1A1D27' : '#F7F5F2',
-          },
-          Button: {
-            borderRadius: 10,
-            controlHeight: 40,
-          },
-          Modal: {
-            borderRadius: 16,
-          },
-          Tag: {
-            borderRadiusSM: 6,
-          },
-          Progress: {
-            remainingColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)',
-          },
+          Table: { borderRadius: 16, headerBg: isDark ? '#111D31' : '#F8FAFC' },
+          Button: { borderRadius: 10, controlHeight: 40 },
+          Modal: { borderRadius: 16 },
+          Tag: { borderRadiusSM: 6 },
+          Progress: { remainingColor: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.06)' },
         },
       }}
     >
       <AuthProvider>
-        <AppContent themeMode={themeMode} toggleTheme={toggleTheme} />
+        <AppRoutes />
       </AuthProvider>
     </ConfigProvider>
   );

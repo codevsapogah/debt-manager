@@ -7,7 +7,11 @@ export default {
     "dashboard": "Панель",
     "manageDebts": "Управление Кредитами",
     "manageIncome": "Управление Доходами",
-    "manageExpenses": "Управление Расходами"
+    "manageExpenses": "Управление Расходами",
+    "home": "Главная",
+    "debts": "Долги",
+    "activity": "История",
+    "settings": "Настройки"
   },
   "auth": {
     "welcome": "Добро пожаловать!",
