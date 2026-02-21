@@ -13,6 +13,8 @@ import DebtsPage from './pages/DebtsPage';
 import DebtDetailPage from './pages/DebtDetailPage';
 import ActivityPage from './pages/ActivityPage';
 import SettingsPage from './pages/SettingsPage';
+import IncomePage from './pages/IncomePage';
+import ExpensesPage from './pages/ExpensesPage';
 import { useTranslation } from 'react-i18next';
 
 // Focus trap hook for modals
@@ -78,6 +80,8 @@ function AppRoutes() {
           <Route path="/debts" element={<DebtsPage />} />
           <Route path="/debts/:id" element={<DebtDetailPage />} />
           <Route path="/activity" element={<ActivityPage />} />
+          <Route path="/income" element={<IncomePage />} />
+          <Route path="/expenses" element={<ExpensesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

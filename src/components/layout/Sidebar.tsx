@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, CreditCard, Clock, Settings } from 'lucide-react';
+import { Home, CreditCard, Clock, Settings, Wallet, Receipt } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -7,8 +7,58 @@ const navItems = [
   { path: '/', icon: Home, labelKey: 'navigation.home' },
   { path: '/debts', icon: CreditCard, labelKey: 'navigation.debts' },
   { path: '/activity', icon: Clock, labelKey: 'navigation.activity' },
+];
+
+const manageItems = [
+  { path: '/income', icon: Wallet, labelKey: 'settings.manageIncome' },
+  { path: '/expenses', icon: Receipt, labelKey: 'settings.manageExpenses' },
+];
+
+const bottomItems = [
   { path: '/settings', icon: Settings, labelKey: 'navigation.settings' },
 ];
+
+function NavButton({ path, isActive, onClick, children }: {
+  path: string;
+  isActive: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        padding: '10px 12px',
+        border: 'none',
+        borderRadius: 'var(--radius-md)',
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+        backgroundColor: isActive ? 'var(--accent-subtle)' : 'transparent',
+        color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+        fontFamily: 'var(--font-family)',
+        fontSize: 14,
+        fontWeight: isActive ? 600 : 500,
+        width: '100%',
+        textAlign: 'left',
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) {
+          (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--bg-surface-hover)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) {
+          (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
+        }
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
 export default function Sidebar() {
   const location = useLocation();
@@ -53,49 +103,64 @@ export default function Sidebar() {
       </div>
 
       {/* Nav items */}
-      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4, padding: '0 12px' }}>
-        {navItems.map(({ path, icon: Icon, labelKey }) => {
-          const isActive = path === '/'
-            ? location.pathname === '/'
-            : location.pathname.startsWith(path);
+      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {navItems.map(({ path, icon: Icon, labelKey }) => {
+            const isActive = path === '/'
+              ? location.pathname === '/'
+              : location.pathname.startsWith(path);
 
-          return (
-            <button
-              key={path}
-              onClick={() => navigate(path)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                padding: '10px 12px',
-                border: 'none',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                backgroundColor: isActive ? 'var(--accent-subtle)' : 'transparent',
-                color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
-                fontFamily: 'var(--font-family)',
-                fontSize: 14,
-                fontWeight: isActive ? 600 : 500,
-                width: '100%',
-                textAlign: 'left',
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--bg-surface-hover)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
-                }
-              }}
-            >
-              <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
-              {t(labelKey)}
-            </button>
-          );
-        })}
+            return (
+              <NavButton key={path} path={path} isActive={isActive} onClick={() => navigate(path)}>
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                {t(labelKey)}
+              </NavButton>
+            );
+          })}
+        </div>
+
+        {/* Manage section */}
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            color: 'var(--text-tertiary)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em',
+            padding: '20px 12px 8px',
+          }}
+        >
+          {t('home.manage')}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          {manageItems.map(({ path, icon: Icon, labelKey }) => {
+            const isActive = location.pathname === path;
+
+            return (
+              <NavButton key={path} path={path} isActive={isActive} onClick={() => navigate(path)}>
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                {t(labelKey)}
+              </NavButton>
+            );
+          })}
+        </div>
+
+        {/* Spacer */}
+        <div style={{ flex: 1 }} />
+
+        {/* Settings at bottom of nav */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 8 }}>
+          {bottomItems.map(({ path, icon: Icon, labelKey }) => {
+            const isActive = location.pathname === path;
+
+            return (
+              <NavButton key={path} path={path} isActive={isActive} onClick={() => navigate(path)}>
+                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                {t(labelKey)}
+              </NavButton>
+            );
+          })}
+        </div>
       </nav>
 
       {/* User section at bottom */}
