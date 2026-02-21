@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../contexts/DataContext';
 import { formatCurrency, formatCurrencyShort } from '../utils/currency';
-import { calculateTotalDebtProjection } from '../utils/calculations';
+import { calculateTotalDebtProjection, calculateCurrentBalance } from '../utils/calculations';
 import {
   AreaChart,
   Area,
@@ -38,12 +38,20 @@ const HomePage: React.FC = () => {
   const { t } = useTranslation();
 
   const activeDebts = useMemo(
-    () => debts.filter((d) => d.includeInTotal !== false && d.currentAmount > 0),
+    () => debts.filter((d) => {
+      if (d.includeInTotal === false) return false;
+      const { currentBalance } = calculateCurrentBalance(d);
+      const balance = d.currentAmount !== d.totalAmount ? d.currentAmount : currentBalance;
+      return balance > 0;
+    }),
     [debts]
   );
 
   const totalDebt = useMemo(
-    () => activeDebts.reduce((sum, d) => sum + d.currentAmount, 0),
+    () => activeDebts.reduce((sum, d) => {
+      const { currentBalance } = calculateCurrentBalance(d);
+      return sum + (d.currentAmount !== d.totalAmount ? d.currentAmount : currentBalance);
+    }, 0),
     [activeDebts]
   );
 
@@ -96,9 +104,23 @@ const HomePage: React.FC = () => {
   // Chart data for debt-free timeline
   const chartData = useMemo(() => {
     if (projection.length === 0) return [];
-    // Sample at most ~12 points for the chart
-    const step = Math.max(1, Math.floor(projection.length / 12));
-    const sampled = projection.filter((_, i) => i % step === 0 || i === projection.length - 1);
+    const totalMonths = projection.length;
+
+    if (totalMonths > 24) {
+      // For long timelines: sample at year boundaries for cleaner labels
+      const sampled = projection.filter((p, i) => {
+        const month = p.date.getMonth();
+        return month === 0 || i === 0 || i === totalMonths - 1;
+      });
+      return sampled.map((p) => ({
+        month: format(p.date, 'yyyy'),
+        remaining: Math.round(p.remainingDebt),
+      }));
+    }
+
+    // For shorter timelines: sample ~12 points with month labels
+    const step = Math.max(1, Math.floor(totalMonths / 12));
+    const sampled = projection.filter((_, i) => i % step === 0 || i === totalMonths - 1);
     return sampled.map((p) => ({
       month: format(p.date, 'MMM yy'),
       remaining: Math.round(p.remainingDebt),
@@ -145,7 +167,7 @@ const HomePage: React.FC = () => {
       <div
         style={{
           padding: '16px',
-          maxWidth: 600,
+          maxWidth: 960,
           margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
@@ -188,7 +210,7 @@ const HomePage: React.FC = () => {
     <div
       style={{
         padding: '16px',
-        maxWidth: 600,
+        maxWidth: 960,
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',

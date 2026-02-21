@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Debt } from '../types';
 import { formatCurrency, formatCurrencyShort } from '../utils/currency';
+import { calculateCurrentBalance } from '../utils/calculations';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
@@ -13,7 +14,12 @@ interface DebtCardProps {
 const DebtCard: React.FC<DebtCardProps> = ({ debt, onClick }) => {
   const { t } = useTranslation();
 
-  const isPaidOff = debt.currentAmount <= 0;
+  const { currentBalance } = useMemo(() => calculateCurrentBalance(debt), [debt]);
+  const displayBalance = debt.currentAmount !== debt.totalAmount
+    ? debt.currentAmount
+    : currentBalance;
+
+  const isPaidOff = displayBalance <= 0;
   const isHighInterest = debt.interestRate > 15;
   const dotColor = isPaidOff
     ? 'var(--success)'
@@ -21,7 +27,7 @@ const DebtCard: React.FC<DebtCardProps> = ({ debt, onClick }) => {
       ? 'var(--coral)'
       : 'var(--accent)';
 
-  const paidOff = debt.totalAmount - debt.currentAmount;
+  const paidOff = debt.totalAmount - displayBalance;
   const progressPercent = debt.totalAmount > 0
     ? Math.min(100, Math.max(0, Math.round((paidOff / debt.totalAmount) * 100)))
     : 0;
@@ -95,7 +101,7 @@ const DebtCard: React.FC<DebtCardProps> = ({ debt, onClick }) => {
               fontVariantNumeric: 'tabular-nums',
             }}
           >
-            {formatCurrency(Math.round(debt.currentAmount))}
+            {formatCurrency(Math.round(displayBalance))}
           </p>
           {debt.monthlyPayment && debt.monthlyPayment > 0 && (
             <p

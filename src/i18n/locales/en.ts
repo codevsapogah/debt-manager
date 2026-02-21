@@ -54,6 +54,10 @@ export default {
     "duplicate": "Duplicate",
     "copy": "(Copy)",
     "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?\\n\\nThis action cannot be undone.",
+    "confirmDelete": "Confirm Delete",
+    "confirmDeleteSingle": "Are you sure you want to delete this loan?",
+    "confirmDeleteMultiple": "Are you sure you want to delete {{count}} loans?",
+    "dontAskAgain": "Don't ask again",
     "noDebts": "No loans added yet. Add your first loan to get started!",
     "addSomeDebts": "Add some loans to see projections"
   },

@@ -8,6 +8,7 @@ import { Clock, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Transaction, Debt } from '../types';
 import LogPaymentModal from '../components/LogPaymentModal';
+import { useIsDesktop } from '../hooks/useMediaQuery';
 
 type TimeFilter = 'thisMonth' | 'last30' | 'allTime';
 
@@ -46,6 +47,7 @@ const ActivityPage: React.FC = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedDebtForPayment, setSelectedDebtForPayment] = useState<Debt | null>(null);
   const [showDebtPicker, setShowDebtPicker] = useState(false);
+  const isDesktop = useIsDesktop();
 
   const debtMap = useMemo(() => {
     const map: Record<string, Debt> = {};
@@ -113,7 +115,7 @@ const ActivityPage: React.FC = () => {
   return (
     <div
       style={{
-        maxWidth: 600,
+        maxWidth: 960,
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
@@ -413,8 +415,8 @@ const ActivityPage: React.FC = () => {
           onClick={handleFabClick}
           style={{
             position: 'fixed',
-            bottom: 80,
-            right: 20,
+            bottom: isDesktop ? 24 : 80,
+            right: isDesktop ? 24 : 20,
             width: 56,
             height: 56,
             borderRadius: '50%',

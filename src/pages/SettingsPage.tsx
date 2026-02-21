@@ -156,7 +156,7 @@ export default function SettingsPage() {
   const photoURL = currentUser?.photoURL;
 
   return (
-    <div style={{ padding: 16, maxWidth: 600, margin: '0 auto' }}>
+    <div style={{ padding: 16, maxWidth: 960, margin: '0 auto' }}>
       {/* ── Title ── */}
       <h1
         style={{
@@ -290,7 +290,7 @@ export default function SettingsPage() {
                   </button>
                   <button
                     onClick={async () => {
-                      if (window.confirm(t('expenses.deleteConfirm'))) {
+                      if (window.confirm(t('expense.deleteConfirm'))) {
                         await deleteRecurringExpense(exp.id);
                         refreshData();
                       }
@@ -310,7 +310,7 @@ export default function SettingsPage() {
               <div style={{
                 padding: 24, textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 14,
               }}>
-                {t('expenses.noExpenses')}
+                {t('expense.noExpenses')}
               </div>
             )}
           </div>

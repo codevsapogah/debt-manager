@@ -65,7 +65,7 @@ const DebtsPage: React.FC = () => {
     <div
       style={{
         padding: 16,
-        maxWidth: 600,
+        maxWidth: 960,
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',

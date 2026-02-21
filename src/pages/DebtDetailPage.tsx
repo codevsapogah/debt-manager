@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../contexts/DataContext';
 import { formatCurrency, formatCurrencyShort } from '../utils/currency';
-import { calculateDebtProjection } from '../utils/calculations';
+import { calculateDebtProjection, calculateCurrentBalance } from '../utils/calculations';
 import {
   AreaChart,
   Area,
@@ -49,6 +49,19 @@ const DebtDetailPage: React.FC = () => {
     }));
   }, [projection]);
 
+  const { currentBalance: calculatedBalance } = useMemo(
+    () => debt ? calculateCurrentBalance(debt) : { currentBalance: 0, totalPaid: 0, interestPaid: 0, monthsElapsed: 0 },
+    [debt]
+  );
+  const displayBalance = debt && debt.currentAmount !== debt.totalAmount
+    ? debt.currentAmount
+    : calculatedBalance;
+
+  const percentPaid = debt && debt.totalAmount > 0
+    ? Math.min(1, Math.max(0, (debt.totalAmount - displayBalance) / debt.totalAmount))
+    : 0;
+  const circumference = 2 * Math.PI * 70;
+
   // Loading state
   if (loading) {
     return (
@@ -72,7 +85,7 @@ const DebtDetailPage: React.FC = () => {
       <div
         style={{
           padding: 16,
-          maxWidth: 600,
+          maxWidth: 960,
           margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
@@ -107,17 +120,12 @@ const DebtDetailPage: React.FC = () => {
     );
   }
 
-  const percentPaid =
-    debt.totalAmount > 0
-      ? Math.min(1, Math.max(0, (debt.totalAmount - debt.currentAmount) / debt.totalAmount))
-      : 0;
-  const circumference = 2 * Math.PI * 70;
 
   return (
     <div
       style={{
         padding: 16,
-        maxWidth: 600,
+        maxWidth: 960,
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
@@ -237,7 +245,7 @@ const DebtDetailPage: React.FC = () => {
               fontVariantNumeric: 'tabular-nums',
             }}
           >
-            {formatCurrency(Math.round(debt.currentAmount))}
+            {formatCurrency(Math.round(displayBalance))}
           </p>
           <p
             style={{
