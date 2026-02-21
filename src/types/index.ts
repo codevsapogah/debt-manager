@@ -8,6 +8,10 @@ export interface Debt {
   monthlyPayment?: number;
   duration?: number; // in months
   includeInTotal?: boolean; // whether to include in total calculations
+  autoLog?: boolean;
+  autoLogDay?: number;
+  autoLogAmount?: number;
+  lastAutoLogDate?: Date;
 }
 
 export interface IncomeSource {
@@ -35,8 +39,19 @@ export interface RecurringExpense {
   includeInTotal?: boolean;
 }
 
+export interface Transaction {
+  id: string;
+  debtId: string;
+  amount: number;
+  date: Date;
+  type: 'manual' | 'recurring';
+  note?: string;
+  balanceAfter: number;
+}
+
 export interface AppState {
   debts: Debt[];
   incomeSources: IncomeSource[];
   recurringExpenses?: RecurringExpense[];
+  transactions?: Transaction[];
 }
