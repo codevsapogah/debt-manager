@@ -1,4 +1,4 @@
-import { AppState, Debt, IncomeSource, RecurringExpense } from '../types';
+import { AppState, Debt, IncomeSource, RecurringExpense, Transaction } from '../types';
 import { auth } from '../config/firebase';
 import {
   addDebtToFirestore,
@@ -13,6 +13,7 @@ import {
 } from './firebaseStorage';
 
 const STORAGE_KEY = 'debt-manager-data';
+const TRANSACTIONS_STORAGE_KEY = 'klaro-transactions';
 
 export const loadFromStorage = (): AppState => {
   try {
@@ -200,6 +201,62 @@ export const deleteRecurringExpense = async (expenseId: string): Promise<void> =
       } catch (error) {
         console.error('Failed to sync expense deletion to Firebase:', error);
       }
+    }
+  }
+};
+
+// Transaction operations
+export const loadTransactions = (debtId?: string): Transaction[] => {
+  try {
+    const raw = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
+    if (!raw) return [];
+    const transactions: Transaction[] = JSON.parse(raw, (key, value) => {
+      if (key === 'date' || key === 'lastAutoLogDate') {
+        return new Date(value);
+      }
+      return value;
+    });
+    if (debtId) {
+      return transactions.filter(t => t.debtId === debtId);
+    }
+    return transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  } catch {
+    return [];
+  }
+};
+
+export const addTransaction = async (
+  transaction: Transaction,
+  userId?: string
+): Promise<void> => {
+  const transactions = loadTransactions();
+  transactions.unshift(transaction);
+  localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(transactions));
+
+  if (userId) {
+    try {
+      const { addTransactionToFirestore } = await import('./firebaseStorage');
+      await addTransactionToFirestore(userId, transaction);
+    } catch (error) {
+      console.error('Failed to sync transaction to Firebase:', error);
+    }
+  }
+};
+
+export const deleteTransaction = async (
+  transactionId: string,
+  userId?: string
+): Promise<void> => {
+  const transactions = loadTransactions();
+  const filtered = transactions.filter(t => t.id !== transactionId);
+  localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(filtered));
+
+  if (userId) {
+    try {
+      const { deleteTransactionFromFirestore } = await import('./firebaseStorage');
+      await deleteTransactionFromFirestore(userId, transactionId);
+    } catch (error) {
+      console.error('Failed to delete transaction from Firebase:', error);
     }
   }
 };
