@@ -38,6 +38,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [expenses, setExpenses] = useState<RecurringExpense[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [autoLogProcessed, setAutoLogProcessed] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -95,6 +96,25 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
     init();
   }, [currentUser, loadData]);
+
+  // Process auto-log payments after initial data load
+  useEffect(() => {
+    if (!loading && !autoLogProcessed && debts.length > 0) {
+      setAutoLogProcessed(true);
+      const process = async () => {
+        try {
+          const { processAutoLogPayments } = await import('../utils/autoLog');
+          const result = await processAutoLogPayments(debts, currentUser?.uid);
+          if (result.newTransactions.length > 0) {
+            await loadData();
+          }
+        } catch (error) {
+          console.error('Auto-log processing error:', error);
+        }
+      };
+      process();
+    }
+  }, [loading, autoLogProcessed, debts, currentUser, loadData]);
 
   const optimisticDeleteDebts = (ids: string[]) => {
     setDebts(prev => prev.filter(d => !ids.includes(d.id)));
