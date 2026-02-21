@@ -9,6 +9,7 @@ import Login from './components/Login';
 import AppLayout from './components/layout/AppLayout';
 import GooeyCircleLoader from './components/GooeyCircleLoader';
 import HomePage from './pages/HomePage';
+import DebtsPage from './pages/DebtsPage';
 import { useTranslation } from 'react-i18next';
 
 // Focus trap hook for modals
@@ -71,7 +72,7 @@ function AppRoutes() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/debts" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Debts - Coming Soon</div>} />
+          <Route path="/debts" element={<DebtsPage />} />
           <Route path="/debts/:id" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Debt Detail - Coming Soon</div>} />
           <Route path="/activity" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Activity - Coming Soon</div>} />
           <Route path="/settings" element={<div style={{ padding: 20, color: 'var(--text-primary)' }}>Settings - Coming Soon</div>} />
