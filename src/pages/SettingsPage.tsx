@@ -10,6 +10,7 @@ import IncomeForm from '../components/IncomeForm';
 import IncomeList from '../components/IncomeList';
 import ExpenseForm from '../components/ExpenseForm';
 import { Sun, Moon, Globe, Download, LogOut, User, ChevronRight, ChevronDown, Trash2, Edit2 } from 'lucide-react';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 /* ─── helper sub-components ─── */
 
@@ -116,6 +117,7 @@ export default function SettingsPage() {
   const [showExpenseManager, setShowExpenseManager] = useState(false);
   const [editingIncome, setEditingIncome] = useState<IncomeSource | null>(null);
   const [editingExpense, setEditingExpense] = useState<RecurringExpense | null>(null);
+  const [deleteExpenseTarget, setDeleteExpenseTarget] = useState<string | null>(null);
 
   /* theme */
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>(
@@ -289,12 +291,7 @@ export default function SettingsPage() {
                     <Edit2 size={14} />
                   </button>
                   <button
-                    onClick={async () => {
-                      if (window.confirm(t('expense.deleteConfirm'))) {
-                        await deleteRecurringExpense(exp.id);
-                        refreshData();
-                      }
-                    }}
+                    onClick={() => setDeleteExpenseTarget(exp.id)}
                     style={{
                       background: 'none', border: 'none', cursor: 'pointer',
                       padding: 4, color: 'var(--text-tertiary)', display: 'flex',
@@ -412,6 +409,19 @@ export default function SettingsPage() {
         <LogOut size={18} />
         {t('settings.signOut')}
       </button>
+
+      <ConfirmDialog
+        isOpen={deleteExpenseTarget !== null}
+        message={t('expense.deleteConfirm')}
+        onConfirm={async () => {
+          if (deleteExpenseTarget) {
+            await deleteRecurringExpense(deleteExpenseTarget);
+            refreshData();
+          }
+          setDeleteExpenseTarget(null);
+        }}
+        onCancel={() => setDeleteExpenseTarget(null)}
+      />
     </div>
   );
 }

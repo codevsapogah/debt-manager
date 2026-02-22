@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Debt, Transaction } from '../types';
 import { addTransaction, updateDebt } from '../utils/storage';
 import { useAuth } from '../contexts/AuthContext';
@@ -25,8 +26,6 @@ const LogPaymentModal: React.FC<LogPaymentModalProps> = ({ debt, isOpen, onClose
   const [dateStr, setDateStr] = useState<string>(todayStr);
   const [note, setNote] = useState<string>('');
   const [submitting, setSubmitting] = useState(false);
-
-  if (!isOpen) return null;
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
@@ -79,32 +78,45 @@ const LogPaymentModal: React.FC<LogPaymentModalProps> = ({ debt, isOpen, onClose
   };
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        zIndex: 100,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          backgroundColor: 'var(--bg-surface)',
-          borderRadius: 'var(--radius-xl)',
-          padding: 24,
-          maxWidth: 400,
-          width: '100%',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          onClick={onClose}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 16,
+          }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.15 }}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: 'var(--bg-surface)',
+              borderRadius: 'var(--radius-xl)',
+              padding: 24,
+              maxWidth: 400,
+              width: '100%',
+              boxShadow: 'var(--shadow-lg)',
+            }}
+          >
         {/* Header */}
         <div
           style={{
@@ -223,8 +235,10 @@ const LogPaymentModal: React.FC<LogPaymentModalProps> = ({ debt, isOpen, onClose
             {t('logPayment.submit')}
           </button>
         </form>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
