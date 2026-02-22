@@ -227,7 +227,10 @@ export default {
     "nextPayments": "Next Payments Due",
     "dueIn": "Due in {{days}} days",
     "noDebts": "No debts yet. Add your first debt to get started.",
-    "monthlyProgress": "Monthly Progress"
+    "monthlyProgress": "Monthly Progress",
+    "totalPaid": "Paid Off",
+    "totalOriginal": "Total Borrowed",
+    "paidPercent": "Progress"
   },
   "activity": {
     "title": "Activity",

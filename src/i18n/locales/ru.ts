@@ -244,7 +244,10 @@ export default {
     "nextPayments": "Ближайшие платежи",
     "dueIn": "Через {{days}} дней",
     "noDebts": "Долгов пока нет. Добавьте первый долг для начала.",
-    "monthlyProgress": "Прогресс за месяц"
+    "monthlyProgress": "Прогресс за месяц",
+    "totalPaid": "Выплачено",
+    "totalOriginal": "Всего взято",
+    "paidPercent": "Прогресс"
   },
   "activity": {
     "title": "Активность",
