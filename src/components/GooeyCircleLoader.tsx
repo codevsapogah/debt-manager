@@ -10,37 +10,54 @@ interface GooeyCircleLoaderProps {
 const GooeyCircleLoader: React.FC<GooeyCircleLoaderProps> = ({
   loading = true,
   size = 100,
-  colors = ['#5e72e4', '#825ee4', '#ef5777']
+  colors = ['#2563EB'],
 }) => {
   if (!loading) return null;
 
+  const color = colors[0] || '#2563EB';
+  const strokeWidth = Math.max(2, size * 0.06);
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+
   return (
-    <div className="gooey-loader-container" style={{ width: size, height: size }}>
-      <svg width="0" height="0" style={{ position: 'absolute' }}>
-        <defs>
-          <filter id="gooey-effect">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-            <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
-              result="gooey"
-            />
-            <feBlend in="SourceGraphic" in2="gooey" />
-          </filter>
-        </defs>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: size * 0.2,
+      }}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        style={{ animation: 'klaro-spin 0.9s linear infinite' }}
+      >
+        {/* Track */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="var(--border-subtle)"
+          strokeWidth={strokeWidth}
+        />
+        {/* Arc */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference * 0.7}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
       </svg>
-      <div className="gooey-loader" style={{
-        width: size,
-        height: size,
-        '--color-1': colors[0],
-        '--color-2': colors[1] || colors[0],
-        '--color-3': colors[2] || colors[0],
-      } as React.CSSProperties}>
-        <div className="gooey-dot" style={{ '--delay': '0s' } as React.CSSProperties}></div>
-        <div className="gooey-dot" style={{ '--delay': '0.1s' } as React.CSSProperties}></div>
-        <div className="gooey-dot" style={{ '--delay': '0.2s' } as React.CSSProperties}></div>
-      </div>
     </div>
   );
 };
