@@ -71,7 +71,12 @@ const HomePage: React.FC = () => {
     [expenses]
   );
 
-  const netCashFlow = totalMonthlyIncome - totalMonthlyExpenses;
+  const totalMonthlyDebtPayments = useMemo(
+    () => activeDebts.reduce((sum, d) => sum + (d.monthlyPayment || 0), 0),
+    [activeDebts]
+  );
+
+  const netCashFlow = totalMonthlyIncome - totalMonthlyExpenses - totalMonthlyDebtPayments;
 
   const projection = useMemo(
     () => calculateTotalDebtProjection(debts),
@@ -411,7 +416,7 @@ const HomePage: React.FC = () => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: 16,
+            marginBottom: 12,
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -422,6 +427,26 @@ const HomePage: React.FC = () => {
           </div>
           <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--coral)' }}>
             {formatCurrency(Math.round(totalMonthlyExpenses))}
+          </span>
+        </div>
+
+        {/* Monthly Debt Payments */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CreditCard size={16} style={{ color: 'var(--accent)' }} />
+            <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+              {t('overview.monthlyDebtPayments')}
+            </span>
+          </div>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)' }}>
+            {formatCurrency(Math.round(totalMonthlyDebtPayments))}
           </span>
         </div>
 
