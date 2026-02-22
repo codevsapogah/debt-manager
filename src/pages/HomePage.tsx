@@ -1,9 +1,14 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useData } from '../contexts/DataContext';
 import { formatCurrency, formatCurrencyShort } from '../utils/currency';
-import { calculateTotalDebtProjection, calculateCurrentBalance } from '../utils/calculations';
+import {
+  calculateTotalDebtProjection,
+  calculateCurrentBalance,
+  calculateSnowballProjection,
+  PaymentStrategy,
+} from '../utils/calculations';
 import {
   AreaChart,
   Area,
@@ -37,6 +42,7 @@ const HomePage: React.FC = () => {
   const { debts, incomes, expenses, loading } = useData();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const [paymentStrategy, setPaymentStrategy] = useState<PaymentStrategy | null>(null);
 
   // ALL debts for the hero summary (full financial picture)
   const debtSummary = useMemo(() => {
@@ -99,9 +105,14 @@ const HomePage: React.FC = () => {
 
   const netCashFlow = totalMonthlyIncome - totalMonthlyExpenses - totalMonthlyDebtPayments;
 
+  const adjustedMonthlyIncome = totalMonthlyIncome - totalMonthlyExpenses;
+
   const projection = useMemo(
-    () => calculateTotalDebtProjection(debts),
-    [debts]
+    () =>
+      paymentStrategy
+        ? calculateSnowballProjection(debts, adjustedMonthlyIncome, paymentStrategy)
+        : calculateTotalDebtProjection(debts),
+    [debts, paymentStrategy, adjustedMonthlyIncome]
   );
 
   const debtFreeDate = useMemo(() => {
@@ -523,9 +534,53 @@ const HomePage: React.FC = () => {
             padding: 20,
           }}
         >
-          <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 16px' }}>
+          <p style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 12px' }}>
             {t('home.debtFreeTimeline')}
           </p>
+
+          {/* Strategy selector pills */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 6,
+              marginBottom: 16,
+              overflowX: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              paddingBottom: 2,
+            }}
+          >
+            {([
+              { key: null, label: t('chart.strategies.standard') },
+              { key: 'snowball' as PaymentStrategy, label: t('chart.strategies.snowball') },
+              { key: 'avalanche' as PaymentStrategy, label: t('chart.strategies.avalanche') },
+              { key: 'cashflow' as PaymentStrategy, label: t('chart.strategies.cashflow') },
+            ]).map((s) => {
+              const active = paymentStrategy === s.key;
+              return (
+                <button
+                  key={s.key || 'standard'}
+                  onClick={() => setPaymentStrategy(s.key)}
+                  style={{
+                    padding: '5px 12px',
+                    borderRadius: 'var(--radius-full)',
+                    fontSize: 12,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    border: active ? '1.5px solid var(--accent)' : '1.5px solid var(--border-default)',
+                    background: active ? 'var(--accent)' : 'transparent',
+                    color: active ? '#FFFFFF' : 'var(--text-tertiary)',
+                    fontFamily: 'var(--font-family)',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0,
+                  }}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
 
           <div style={{ height: 200, marginLeft: -10 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -582,6 +637,20 @@ const HomePage: React.FC = () => {
               }}
             >
               {t('home.debtFreeBy', { date: format(debtFreeDate, 'MMMM yyyy', { locale: i18n.language === 'ru' ? ru : enUS }) })}
+            </p>
+          )}
+
+          {/* Strategy description */}
+          {paymentStrategy && (
+            <p
+              style={{
+                margin: '12px 0 0',
+                fontSize: 12,
+                color: 'var(--text-tertiary)',
+                lineHeight: 1.5,
+              }}
+            >
+              {t(`chart.strategyDescriptions.${paymentStrategy}`)}
             </p>
           )}
         </motion.div>
