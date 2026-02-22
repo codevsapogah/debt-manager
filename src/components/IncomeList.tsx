@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { IncomeSource } from '../types';
 import { deleteIncomeSource, updateIncomeSource } from '../utils/storage';
 import { formatCurrency } from '../utils/currency';
+import ConfirmDialog from './ConfirmDialog';
 
 interface IncomeListProps {
   incomes: IncomeSource[];
@@ -14,16 +15,21 @@ interface IncomeListProps {
 const IncomeList: React.FC<IncomeListProps> = ({ incomes, onIncomeDeleted, onIncomeEdit }) => {
   const { t } = useTranslation();
   const [processingToggles, setProcessingToggles] = React.useState<Set<string>>(new Set());
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm(t('income.deleteConfirm'))) {
-      try {
-        await deleteIncomeSource(id);
-      } catch (error) {
-        console.error('Failed to delete income:', error);
-      }
-      onIncomeDeleted();
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteIncomeSource(deleteTarget);
+    } catch (error) {
+      console.error('Failed to delete income:', error);
     }
+    setDeleteTarget(null);
+    onIncomeDeleted();
   };
 
   const handleToggleIncludeInTotal = async (income: IncomeSource) => {
@@ -174,6 +180,13 @@ const IncomeList: React.FC<IncomeListProps> = ({ incomes, onIncomeDeleted, onInc
           <div className="summary-value">{formatCurrency(getTotalMonthlyIncome())}</div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteTarget !== null}
+        message={t('income.deleteConfirm')}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

@@ -5,12 +5,14 @@ import { RecurringExpense } from '../types';
 import { deleteRecurringExpense } from '../utils/storage';
 import { formatCurrency } from '../utils/currency';
 import ExpenseForm from '../components/ExpenseForm';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { Trash2, Edit2 } from 'lucide-react';
 
 const ExpensesPage: React.FC = () => {
   const { t } = useTranslation();
   const { expenses, refreshData } = useData();
   const [editingExpense, setEditingExpense] = useState<RecurringExpense | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
   return (
     <div style={{ padding: 16, maxWidth: 960, margin: '0 auto' }}>
@@ -58,12 +60,7 @@ const ExpensesPage: React.FC = () => {
                 <Edit2 size={14} />
               </button>
               <button
-                onClick={async () => {
-                  if (window.confirm(t('expense.deleteConfirm'))) {
-                    await deleteRecurringExpense(exp.id);
-                    refreshData();
-                  }
-                }}
+                onClick={() => setDeleteTarget(exp.id)}
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer',
                   padding: 4, color: 'var(--text-tertiary)', display: 'flex',
@@ -83,6 +80,19 @@ const ExpensesPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={deleteTarget !== null}
+        message={t('expense.deleteConfirm')}
+        onConfirm={async () => {
+          if (deleteTarget) {
+            await deleteRecurringExpense(deleteTarget);
+            refreshData();
+          }
+          setDeleteTarget(null);
+        }}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };
