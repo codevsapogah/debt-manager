@@ -37,22 +37,42 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  // All debts included in totals (regardless of calculated balance)
+  const includedDebts = useMemo(
+    () => debts.filter((d) => d.includeInTotal !== false),
+    [debts]
+  );
+
+  // Compute balances for all included debts
+  const debtSummary = useMemo(() => {
+    let totalOriginal = 0;
+    let totalRemaining = 0;
+    let activeCount = 0;
+
+    for (const d of includedDebts) {
+      totalOriginal += d.totalAmount;
+      const { currentBalance } = calculateCurrentBalance(d);
+      const balance = d.currentAmount !== d.totalAmount ? d.currentAmount : currentBalance;
+      totalRemaining += Math.max(0, balance);
+      if (balance > 0) activeCount++;
+    }
+
+    return {
+      totalOriginal,
+      totalRemaining,
+      totalPaid: totalOriginal - totalRemaining,
+      activeCount,
+    };
+  }, [includedDebts]);
+
+  // Keep activeDebts for other uses (next payments, debt payment sum)
   const activeDebts = useMemo(
-    () => debts.filter((d) => {
-      if (d.includeInTotal === false) return false;
+    () => includedDebts.filter((d) => {
       const { currentBalance } = calculateCurrentBalance(d);
       const balance = d.currentAmount !== d.totalAmount ? d.currentAmount : currentBalance;
       return balance > 0;
     }),
-    [debts]
-  );
-
-  const totalDebt = useMemo(
-    () => activeDebts.reduce((sum, d) => {
-      const { currentBalance } = calculateCurrentBalance(d);
-      return sum + (d.currentAmount !== d.totalAmount ? d.currentAmount : currentBalance);
-    }, 0),
-    [activeDebts]
+    [includedDebts]
   );
 
   const totalMonthlyIncome = useMemo(
@@ -89,22 +109,6 @@ const HomePage: React.FC = () => {
     if (last.remainingDebt <= 0.01) return last.date;
     return null;
   }, [projection]);
-
-  // Mini sparkline data for hero card: last 6 months downward trend
-  const sparklineData = useMemo(() => {
-    const points = [];
-    const now = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const monthDate = addMonths(now, -i);
-      // Simulate a downward trend from a higher amount toward current total
-      const factor = 1 + i * 0.06;
-      points.push({
-        month: format(monthDate, 'MMM'),
-        value: Math.round(totalDebt * factor),
-      });
-    }
-    return points;
-  }, [totalDebt]);
 
   // Chart data for debt-free timeline
   const chartData = useMemo(() => {
@@ -230,7 +234,7 @@ const HomePage: React.FC = () => {
         style={{
           background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
           borderRadius: 'var(--radius-lg)',
-          padding: '24px 20px 16px',
+          padding: '24px 20px 20px',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -250,43 +254,73 @@ const HomePage: React.FC = () => {
             color: '#FFFFFF',
             fontSize: 36,
             fontWeight: 800,
-            margin: '0 0 4px',
+            margin: '0 0 2px',
             fontFamily: 'var(--font-display)',
             letterSpacing: '-0.02em',
           }}
         >
-          {formatCurrency(Math.round(totalDebt))}
+          {formatCurrency(Math.round(debtSummary.totalRemaining))}
         </p>
         <p
           style={{
             color: 'rgba(255, 255, 255, 0.6)',
             fontSize: 13,
-            margin: 0,
+            margin: '0 0 16px',
           }}
         >
-          {t('home.acrossDebts', { count: activeDebts.length })}
+          {t('home.acrossDebts', { count: debtSummary.activeCount })}
         </p>
 
-        {/* Mini sparkline */}
-        <div style={{ height: 80, marginTop: 12, marginLeft: -20, marginRight: -20 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={sparklineData}>
-              <defs>
-                <linearGradient id="heroSparkline" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="rgba(255,255,255,0.3)" />
-                  <stop offset="100%" stopColor="rgba(255,255,255,0.02)" />
-                </linearGradient>
-              </defs>
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="rgba(255,255,255,0.5)"
-                strokeWidth={2}
-                fill="url(#heroSparkline)"
-                isAnimationActive={false}
+        {/* Progress bar */}
+        {debtSummary.totalOriginal > 0 && (
+          <div style={{ marginBottom: 14 }}>
+            <div
+              style={{
+                height: 6,
+                borderRadius: 9999,
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  width: `${Math.min(100, Math.round((debtSummary.totalPaid / debtSummary.totalOriginal) * 100))}%`,
+                  borderRadius: 9999,
+                  background: 'linear-gradient(90deg, #34D399, #10B981)',
+                  transition: 'width 0.5s ease',
+                }}
               />
-            </AreaChart>
-          </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Paid / Total breakdown */}
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ flex: 1 }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, margin: '0 0 2px', fontWeight: 500 }}>
+              {t('home.totalPaid')}
+            </p>
+            <p style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 700, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+              {formatCurrency(Math.round(debtSummary.totalPaid))}
+            </p>
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, margin: '0 0 2px', fontWeight: 500 }}>
+              {t('home.totalOriginal')}
+            </p>
+            <p style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 700, margin: 0, fontVariantNumeric: 'tabular-nums' }}>
+              {formatCurrency(Math.round(debtSummary.totalOriginal))}
+            </p>
+          </div>
+          <div style={{ flex: 1, textAlign: 'right' }}>
+            <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, margin: '0 0 2px', fontWeight: 500 }}>
+              {t('home.paidPercent')}
+            </p>
+            <p style={{ color: '#34D399', fontSize: 16, fontWeight: 700, margin: 0 }}>
+              {debtSummary.totalOriginal > 0 ? Math.round((debtSummary.totalPaid / debtSummary.totalOriginal) * 100) : 0}%
+            </p>
+          </div>
         </div>
       </motion.div>
 
