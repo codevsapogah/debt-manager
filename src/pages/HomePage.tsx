@@ -15,6 +15,7 @@ import {
 import { Plus, TrendingDown, TrendingUp, ArrowRight, CreditCard } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, addMonths, differenceInDays } from 'date-fns';
+import { ru, enUS } from 'date-fns/locale';
 // Types used indirectly via useData context
 // import { Debt, IncomeSource, RecurringExpense } from '../types';
 import GooeyCircleLoader from '../components/GooeyCircleLoader';
@@ -35,21 +36,15 @@ function toMonthly(amount: number, frequency: string): number {
 const HomePage: React.FC = () => {
   const { debts, incomes, expenses, loading } = useData();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  // All debts included in totals (regardless of calculated balance)
-  const includedDebts = useMemo(
-    () => debts.filter((d) => d.includeInTotal !== false),
-    [debts]
-  );
-
-  // Compute balances for all included debts
+  // ALL debts for the hero summary (full financial picture)
   const debtSummary = useMemo(() => {
     let totalOriginal = 0;
     let totalRemaining = 0;
     let activeCount = 0;
 
-    for (const d of includedDebts) {
+    for (const d of debts) {
       totalOriginal += d.totalAmount;
       const { currentBalance } = calculateCurrentBalance(d);
       const balance = d.currentAmount !== d.totalAmount ? d.currentAmount : currentBalance;
@@ -63,7 +58,13 @@ const HomePage: React.FC = () => {
       totalPaid: totalOriginal - totalRemaining,
       activeCount,
     };
-  }, [includedDebts]);
+  }, [debts]);
+
+  // Debts included in projections/charts
+  const includedDebts = useMemo(
+    () => debts.filter((d) => d.includeInTotal !== false),
+    [debts]
+  );
 
   // Keep activeDebts for other uses (next payments, debt payment sum)
   const activeDebts = useMemo(
@@ -580,7 +581,7 @@ const HomePage: React.FC = () => {
                 textAlign: 'center',
               }}
             >
-              {t('home.debtFreeBy', { date: format(debtFreeDate, 'MMMM yyyy') })}
+              {t('home.debtFreeBy', { date: format(debtFreeDate, 'MMMM yyyy', { locale: i18n.language === 'ru' ? ru : enUS }) })}
             </p>
           )}
         </motion.div>
